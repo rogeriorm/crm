@@ -1,0 +1,13 @@
+# Environment variables (contains secrets)
+.env
+
+# Claude Code local settings and session data
+.claude/
+
+# Node modules (if any)
+node_modules/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+desktop.ini
