@@ -109,335 +109,10 @@ Este documento propõe uma **evolução arquitetural** do seu CRM workflow, tran
 | **Communication Agent** | Drafts emails, messages, proposals | Follow-up Drafter, Proposal Generator |
 | **Orchestrator Agent** | Coordena múltiplos agents em workflows | CRM Orchestrator (fase futura) |
 
----
 
-## 3. Especificação: Weekly Pipeline Digest (Prioridade 1)
 
-### Objetivos
-
-1. **Eliminar revisão manual de views** (30 min/semana → 5 min)
-2. **Proatividade:** Identificar problemas antes de virarem crises
-3. **Acionabilidade:** Output = lista clara de próximas ações
-4. **Consistência:** Executar toda segunda-feira 9:00 AM (ou sob demanda)
-
-### Inputs
-
-**Data Sources:**
-- Oportunidades database: `collection://201b1882-308d-4524-8a86-6672d5502299`
-- Views existentes (queries):
-  - 🚨 Pipeline Travado: `Days in Stage > 14`
-  - ⏳ Aguardando Cliente: `Status = "Waiting Feedback"`
-  - 📅 Esta Semana: `Next Action Date in next 7 days OR overdue`
-  - 💰 Active Pipeline: Stages de venda ativos
-
-**Parâmetros (opcionais):**
-- `date_range`: Análise semanal (default) ou custom
-- `focus`: "risks" | "revenue" | "full" (default)
-- `format`: "markdown" | "bullets" | "email"
-
-### Processamento (Lógica do Agent)
-
-**Step 1: Coletar Dados**
-```
-- Query Oportunidades (todas ativas, exclude done/archived)
-- Para cada opp, load properties:
-  - Biz Funnel, Status, Next Action, Next Action Date
-  - Days in Stage, Days Until Due, Priority
-  - Update Log (última entrada), Cliente, Contatos
-```
-
-**Step 2: Calcular Métricas de Saúde**
-```
-Pipeline Velocity:
-  - Avg Days in Stage por Biz Funnel stage
-  - Benchmark: <10 dias = healthy, 10-14 = warning, >14 = crítico
-
-Conversion Rate:
-  - % opps que avançaram de stage na última semana
-  - Benchmark: >30% = healthy
-
-Stalled Opportunities:
-  - Count de opps em "Waiting Feedback" >7 dias
-  - Benchmark: <3 = healthy, 3-5 = warning, >5 = crítico
-
-Overdue Actions:
-  - Count de opps com Next Action Date no passado
-  - Prioridade por Priority field (High → Medium → Low)
-```
-
-**Step 3: Identificar Riscos e Oportunidades**
-```
-🚨 RISCOS:
-  - Opps com Days in Stage >14 (ordenar por Priority)
-  - Opps "Waiting Feedback" >7 dias sem follow-up
-  - Opps High Priority com Next Action Date overdue
-
-💰 OPORTUNIDADES:
-  - Opps em "Proposta" ou "Negociação" com next milestone <7 dias
-  - Opps que avançaram 2+ stages na última semana (momentum)
-```
-
-**Step 4: Gerar Action Items**
-```
-Para cada risco/oportunidade:
-  - Ação recomendada (follow-up, archive, schedule meeting)
-  - Contexto mínimo (last Update Log entry, stakeholder)
-  - Link direto para a página da Oportunidade
-```
-
-### Output (Formato do Digest)
-
-```markdown
-# Weekly Pipeline Digest - [Data]
-
-## 📊 Pipeline Health Score: [X/100]
-
-**Velocity:** ⚠️ 12.3 dias (target: <10)
-**Conversion:** ✅ 35% avançaram
-**Stalled:** 🚨 6 opps >7 dias sem feedback
-**Overdue:** ⚠️ 4 High Priority actions atrasadas
 
 ---
-
-## 🚨 AÇÃO IMEDIATA NECESSÁRIA (4)
-
-### 1. [Oportunidade X] - 18 dias travada em Proposta
-- **Problema:** Waiting Feedback desde 02/11, sem resposta
-- **Ação:** Follow-up com [Stakeholder Y] hoje
-- **Contexto:** Última interação: "cliente ia revisar proposta internamente"
-- **Link:** [Abrir no Notion]
-
-### 2. [Oportunidade Z] - High Priority, Next Action vencida há 3 dias
-- **Problema:** "Enviar contrato revisado" era para 17/11
-- **Ação:** Enviar contrato hoje ou reagendar
-- **Link:** [Abrir no Notion]
-
-[... mais 2 items ...]
-
----
-
-## 💰 OPORTUNIDADES DE REVENUE (2)
-
-### 1. [Oportunidade A] - Momentum! Avançou Credibilidade → Proposta
-- **Próximo Milestone:** Apresentar proposta comercial em 22/11
-- **Ação:** Confirmar agenda e preparar briefing (use Agent: Meeting Prep)
-- **Link:** [Abrir no Notion]
-
-### 2. [Oportunidade B] - Em Negociação, possível fechamento esta semana
-- **Próximo Milestone:** Cliente confirmou aprovação interna
-- **Ação:** Preparar contrato e follow-up amanhã
-- **Link:** [Abrir no Notion]
-
----
-
-## 📅 AGENDA DA SEMANA (7 opps com Next Action Date)
-
-**Segunda-feira (hoje):**
-- [Opp X]: Follow-up com stakeholder
-- [Opp Y]: Enviar contrato revisado
-
-**Terça-feira:**
-- [Opp Z]: Reunião de proposta (prep com Agent: Meeting Prep)
-
-**Quarta-feira:**
-- [Opp W]: Check-in informal
-
-[... restante da semana ...]
-
----
-
-## 🔍 PIPELINE OVERVIEW
-
-**Distribuição por Stage:**
-- Marketing: 3 opps
-- Suspect: 5 opps
-- Credibilidade: 4 opps
-- Proposta: 6 opps (⚠️ 3 travadas >14 dias)
-- Negociação: 2 opps
-- Fechamento: 1 opp
-
-**Total Active Pipeline:** 21 opps
-
----
-
-**Próximo Digest:** Segunda, 27/11 às 9:00 AM
-```
-
-### Implementação Técnica
-
-**Comando no My Notion AI:**
-```
-"Gere o pipeline digest"
-ou
-"Pipeline digest semanal"
-```
-
-**MCP Tools Utilizados:**
-1. `mcp__notion__notion-search`: Query oportunidades ativas
-2. `mcp__notion__notion-fetch`: Load propriedades de cada opp
-3. Processamento local: Cálculo de métricas, ordenação, formatação
-4. Output: Markdown estruturado (pode ser enviado por email/Slack futuramente)
-
-**Armazenamento (opcional):**
-- Criar página "Pipeline Digests" no Notion
-- Cada digest vira subpágina com timestamp
-- Permite tracking histórico de métricas semanais
-
-### Métricas de Sucesso
-
-| Métrica | Baseline (Atual) | Target (3 meses) |
-|---------|------------------|------------------|
-| Tempo de pipeline review | 30 min/semana | 5 min/semana |
-| Opps travadas >14 dias | 6 opps | <3 opps |
-| Overdue actions não detectadas | ~30% | <5% |
-| Taxa de adoção do digest | 0% (não existe) | 90% (usado toda semana) |
-
----
-
-## 4. Roadmap de Implementação
-
-### Fase 1: Foundation (Semanas 1-2) 🎯 AGORA
-
-**Entregas:**
-1. ✅ Criar estrutura de páginas no Notion (Processos 1.0 - 5.0)
-2. ✅ Implementar Weekly Pipeline Digest (Agent 3.0)
-3. ✅ Testar e iterar formato do digest por 2 semanas
-4. ✅ Documentar processo no Notion
-
-**Decisões Necessárias:**
-- [ ] Frequência do digest: Segunda 9AM fixo ou sob demanda?
-- [ ] Formato de entrega: Página Notion, email, Slack, ou todos?
-- [ ] Threshold de "Pipeline Health Score": 0-100 baseado em quais pesos?
-
-**Tempo estimado:** 4-6 horas de setup inicial + 2 semanas de refinamento
-
----
-
-### Fase 2: Expansion (Semanas 3-6)
-
-**Entregas:**
-1. Implementar Process 2.1 - Meeting Prep Briefer
-   - SPIN questions automáticas por Biz Funnel stage
-   - Histórico da oportunidade formatado
-   - Objetivos sugeridos para a reunião
-
-2. Implementar Process 1.0 - Opportunity Creator
-   - Template para workshop → opp conversion
-   - Auto-link de parent task e contacts
-   - Initial Update Log generation
-
-3. Documentar processos 2.1 e 1.0 no Notion
-
-**Decisões Necessárias:**
-- [ ] SPIN methodology: usar framework padrão ou customizar por industry/stage?
-- [ ] Meeting Prep: quanto contexto incluir? (brief vs comprehensive)
-
-**Tempo estimado:** 8-12 horas distribuídas em 4 semanas
-
----
-
-### Fase 3: Communication (Semanas 7-10)
-
-**Entregas:**
-1. Implementar Process 4.0 - Follow-up Drafter
-   - Rascunhos de email contextualizados
-   - Adaptação de tom por Biz Funnel stage
-   - Sugestões de CTA (call-to-action)
-
-2. Criar biblioteca de templates de comunicação
-   - Por stage: Credibilidade, Proposta, Negociação, Relacionamento
-   - Por tipo: Follow-up, Proposal, Thank you, Objection handling
-
-**Decisões Necessárias:**
-- [ ] Tom de comunicação: formal, semiformal, casual?
-- [ ] Quão personalizados devem ser os drafts? (80% ready ou 50% skeleton?)
-
-**Tempo estimado:** 6-10 horas distribuídas em 4 semanas
-
----
-
-### Fase 4: Orchestration (Semanas 11-16) - FUTURO
-
-**Entregas:**
-1. Implementar Process 5.0 - CRM Orchestrator
-   - Event-driven triggers (nova Anotação, Next Action Date vencido)
-   - Workflows integrados:
-     - Anotação criada → Opportunity Advancer → Meeting Prep Briefer (se próxima reunião agendada)
-     - Next Action vencida + Waiting Feedback >7 dias → Follow-up Drafter
-     - Workshop concluído → Opportunity Creator (se surgiram leads)
-
-2. Dashboard de monitoramento de agents
-   - Execuções por agent/semana
-   - Tempo economizado (estimado vs real)
-   - Taxa de adoção por processo
-
-**Decisões Necessárias:**
-- [ ] Nível de automação: orquestrador executa automaticamente ou sempre pede confirmação?
-- [ ] Tratamento de erros: retry automático, fallback para manual, ou alert?
-
-**Tempo estimado:** 12-20 horas distribuídas em 6 semanas
-
----
-
-## 5. Arquitetura Técnica Futura
-
-### Visão de Orquestração Integrada
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CRM ORCHESTRATOR                          │
-│  (Event-driven coordinator - executa workflows integrados)  │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-         ┌─────────────┼─────────────┬─────────────┐
-         │             │             │             │
-         ▼             ▼             ▼             ▼
-┌─────────────┐ ┌─────────────┐ ┌──────────┐ ┌─────────────┐
-│ Opportunity │ │  Meeting    │ │ Pipeline │ │  Follow-up  │
-│   Creator   │ │   Prep      │ │  Digest  │ │   Drafter   │
-│   (1.0)     │ │  Briefer    │ │  (3.0)   │ │   (4.0)     │
-│             │ │   (2.1)     │ │          │ │             │
-└──────┬──────┘ └──────┬──────┘ └────┬─────┘ └──────┬──────┘
-       │               │              │              │
-       └───────────────┴──────────────┴──────────────┘
-                       │
-                       ▼
-         ┌─────────────────────────┐
-         │  Opportunity Advancer   │
-         │       (2.2) ✅          │
-         │  (já implementado!)     │
-         └─────────────────────────┘
-                       │
-                       ▼
-         ┌─────────────────────────┐
-         │   NOTION DATA LAYER     │
-         │  (via MCP Protocol)     │
-         │ - Oportunidades DB      │
-         │ - Anotações (notes)     │
-         │ - Contatos/Empresas     │
-         └─────────────────────────┘
-```
-
-### Exemplo de Workflow Orquestrado
-
-**Trigger:** Nova página criada em "Anotações" (reunião com cliente)
-
-**Workflow:**
-1. **Orchestrator detecta:** Anotação linkada à Oportunidade X
-2. **Chama Agent 2.2 (Opportunity Advancer):**
-   - Processa transcript
-   - Preenche 5 campos
-   - Detecta: Biz Funnel avançou de Credibilidade → Proposta
-3. **Orchestrator detecta:** Stage advancement = evento relevante
-4. **Chama Agent 2.1 (Meeting Prep Briefer):**
-   - Verifica se há próxima reunião agendada (Next Action = "Apresentar proposta")
-   - Gera briefing proativo para a apresentação
-5. **Orchestrator detecta:** Briefing gerado, oportunidade em Proposta
-6. **Chama Agent 4.0 (Follow-up Drafter) - OPCIONAL:**
-   - Gera draft de thank-you email pós-reunião
-   - Inclui recap de decisões e next steps
-
-**Resultado:** Pipeline avançado + próxima reunião preparada + follow-up rascunhado, tudo em <30 segundos, zero esforço manual.
 
 ---
 
@@ -459,29 +134,17 @@ ou
    - [ ] Criar nova página raiz "CRM Agents & Skills" separada de processos
    - [ ] Adicionar tudo ao My Notion AI como contexto expandido
 
-### Decisões Táticas (Weekly Pipeline Digest)
 
-4. **Frequência de Execução:**
-   - [ ] Automático toda segunda 9:00 AM (requer trigger agendado - complexo)
-   - [ ] Sob demanda via comando "gere pipeline digest" (simples, flexível)
-   - [ ] Híbrido: lembrete automático segunda 9AM, execução sob demanda
-
-5. **Formato de Entrega:**
-   - [ ] Criar página no Notion "Pipeline Digests" (histórico rastreável)
-   - [ ] Retornar markdown no chat (rápido, sem persistência)
-   - [ ] Ambos: página Notion + notificação no chat
-
-6. **Nível de Detalhe:**
-   - [ ] Digest compacto: apenas action items + métricas críticas (1 página)
-   - [ ] Digest completo: tudo descrito acima (2-3 páginas)
-   - [ ] Digest adaptativo: compacto se tudo OK, completo se houver riscos
 
 ### Decisões de Implementação
 
 7. **Tecnologia:**
-   - [ ] Implementar agents como comandos no My Notion AI (100% Notion-native)
+   - [ ] Implementar agents como comandos no My Notion AI (100% Notion-native). 
    - [ ] Implementar agents como scripts Python/TS neste repo (mais controle, versionamento)
-   - [ ] Híbrido: lógica complexa em código, interface via My Notion AI
+   - [x] Híbrido: 
+
+   Atualização: a tecnologia será hibrida, com o notion sendo considerado como meu repositorio de dados. 
+   Os agentes terão espelhos: serão implementados tanto via notion, quanto via Claude Code. 
 
 8. **Testes e Validação:**
    - [ ] Começar com dados reais imediatamente (mais rápido, pode ter erros)
@@ -490,48 +153,87 @@ ou
 
 ---
 
-## 7. Próximos Passos Recomendados
+## 7. Documentação Técnica
 
-### Imediato (Esta Semana)
+A documentação foi reorganizada em estrutura modular:
 
-1. **Revisar este documento e tomar decisões pendentes** (30 min)
-   - Responder aos 8 itens de decisões acima
-   - Priorizar: qual Fase começar? (recomendação: Fase 1 completa)
+### Arquivos de Referência
 
-2. **Criar estrutura de páginas no Notion** (20 min)
-   - Subpáginas 1.0, 2.1, 3.0, 4.0, 5.0 sob "Processos de Negócio"
-   - Copiar conteúdo relevante do Process 2.2 como template
-
-3. **Implementar MVP do Weekly Pipeline Digest** (2-4 horas)
-   - Desenvolver lógica de query e cálculo de métricas
-   - Testar com dados reais
-   - Gerar primeiro digest e iterar formato
-
-### Curto Prazo (Próximas 2 Semanas)
-
-4. **Usar Weekly Digest ativamente** (5 min/semana)
-   - Executar toda segunda-feira
-   - Coletar feedback: o que falta? o que sobra?
-   - Refinar thresholds de saúde e action items
-
-5. **Documentar Process 3.0 no Notion** (1 hora)
-   - Workflow manual vs automatizado
-   - Screenshots do digest
-   - Métricas de sucesso e iterações
-
-6. **Decidir sobre Fase 2** (15 min)
-   - Priorizar: Meeting Prep ou Opportunity Creator?
-   - Definir timeline e escopo
-
-### Médio Prazo (Próximos 2 Meses)
-
-7. **Implementar agents da Fase 2** (8-12 horas distribuídas)
-8. **Consolidar ou arquivar Implementation Plan** (30 min)
-9. **Atualizar CLAUDE.md** com nova arquitetura (15 min)
+| Arquivo | Conteúdo | Uso |
+|---------|----------|-----|
+| **`docs/arquitetura.md`** | Arquitetura técnica atual e futura, componentes, data flow, tech stack | Entender como o sistema funciona |
+| **`docs/cronograma.md`** | Roadmap completo (Fases 0-4), timeline, métricas, riscos | Planejamento e tracking |
+| **`docs/2.2-opportunity-advancer.md`** | Especificação técnica completa do agente espelho Process 2.2 | Implementação da Fase 0 |
+| **`docs/3.0-weekly-pipeline.md`** | Especificação técnica do Weekly Pipeline Digest | Implementação da Fase 1 |
+| **`CLAUDE.md`** | Instruções gerais do projeto para Claude Code | Context loading |
+| **`plano-atualizado.md`** | Este documento - visão estratégica e decisões | Decisões de alto nível |
 
 ---
 
-## 8. Riscos e Mitigações
+## 8. Próximos Passos (Atualizados)
+
+### ✅ Concluído (2025-11-20)
+
+1. **Reorganização da documentação**
+   - Criada pasta `docs/`
+   - Arquivos modulares criados
+   - Estrutura escalável estabelecida
+
+2. **Decisões estratégicas tomadas**
+   - Abordagem híbrida confirmada (Notion AI + Claude Code)
+   - Prioridade 0 definida: Agent Mirror 2.2
+   - Roadmap repensado (5 fases, 16 semanas)
+
+3. **Especificações técnicas completadas**
+   - Process 2.2 Agent Mirror: 100% especificado
+   - Weekly Pipeline Digest: 100% especificado
+   - Arquitetura técnica: documentada
+
+### 🎯 Imediato (Esta Semana) - Fase 0
+
+**Objetivo:** Validar abordagem híbrida criando agente espelho
+
+4. **Implementar Process 2.2 Agent Mirror** (2-3 horas)
+   - Seguir spec em `docs/2.2-opportunity-advancer.md`
+   - Query → Load → Parse → Analyze → Output
+   - Dry-run mode (não atualiza Notion)
+
+5. **Testar com 3-5 oportunidades reais** (30-45 min)
+   - Comparar output: Notion AI vs Claude Code
+   - Documentar diferenças
+   - Refinar lógica se necessário
+
+6. **Documentar usage e troubleshooting** (15-30 min)
+   - Como executar o agente
+   - Casos de uso
+   - Common errors
+
+### 📅 Semanas 2-3 - Fase 1
+
+7. **Implementar Weekly Pipeline Digest** (3-4 horas)
+   - Seguir spec em `docs/3.0-weekly-pipeline.md`
+   - Query opps → Calcular métricas → Gerar digest
+
+8. **Iterar formato do digest** (2 semanas)
+   - Usar ativamente toda segunda-feira
+   - Ajustar thresholds e action items
+   - Refinar nível de detalhe
+
+### 🔄 Decisão Gate (Após Fase 1)
+
+9. **Avaliar abordagem híbrida**
+   - Agents estão entregando valor?
+   - Tempo economizado é real?
+   - Vale prosseguir para Fase 2?
+
+**Se SIM:** Prosseguir para Fases 2-4 (Meeting Prep, Follow-up, Orchestration)
+**Se NÃO:** Repensar estratégia
+
+
+
+---
+
+## 9. Riscos e Mitigações
 
 | Risco | Probabilidade | Impacto | Mitigação |
 |-------|---------------|---------|-----------|
@@ -543,7 +245,7 @@ ou
 
 ---
 
-## 9. Métricas de Sucesso (6 Meses)
+## 10. Métricas de Sucesso (6 Meses)
 
 ### Quantitativas
 
@@ -561,37 +263,60 @@ ou
 
 ---
 
-## 10. Conclusão e Call to Action
+## 11. Conclusão e Call to Action
 
-### Situação
+### Situação Atual
 
-Você tem um **Process 2.2 funcionando excepcionalmente bem** - AI auto-preenche campos após reuniões e o pipeline está sempre em movimento. Isso valida que a abordagem de "agentes/skills automatizados" funciona.
+✅ **Process 2.2 (Notion AI) funcionando excepcionalmente bem** - AI auto-preenche 5 campos após reuniões e pipeline sempre em movimento
 
-### Oportunidade
+✅ **Documentação completa e estruturada** - Specs técnicas, arquitetura, cronograma organizados em `docs/`
 
-Aplicar a mesma lógica aos outros processos do dia a dia:
-- **Weekly Pipeline Digest:** economiza 30 min/semana, identifica riscos proativamente
-- **Meeting Prep Briefer:** economiza 50 min/semana, reuniões mais efetivas
-- **Opportunity Creator:** economiza 15 min/semana, entrada de dados consistente
-- **Follow-up Drafter:** economiza 15 min/semana, comunicação mais rápida
+✅ **Estratégia híbrida definida** - Agents terão espelhos: Notion AI (nativo) + Claude Code (programático)
 
-**Total potencial:** 110 minutos/semana economizados (além do que já economiza com Process 2.2)
+✅ **Roadmap repensado** - 5 fases (0-4), 16 semanas, começando com validação técnica
 
-### Visão Futura
+### Próxima Ação Imediata
 
-Skills isoladas evoluem para **orquestração integrada**, onde uma reunião trigger automaticamente: avança pipeline → prepara próxima reunião → drafta follow-up. Zero esforço manual.
+**Fase 0 (Esta Semana): Implementar Agent Mirror 2.2**
 
-### Próxima Ação
+1. Seguir spec completa em `docs/2.2-opportunity-advancer.md`
+2. Validar que Claude Code consegue replicar Notion AI (>80% accuracy)
+3. Estabelecer padrões para próximos agents
 
-**Você decide:**
-1. Revisar decisões pendentes (seção 6)
-2. Validar escopo da Fase 1 (só Digest ou estrutura completa?)
-3. Aprovar implementação do Weekly Pipeline Digest
+**Tempo estimado:** 2-3 horas
 
-**Quando você estiver pronto:** diga "Aprovar Fase 1" e implementamos o Weekly Pipeline Digest em ~2-4 horas de trabalho focado.
+**Valor:** Valida abordagem híbrida antes de investir em novos agents
+
+### Oportunidade de Longo Prazo
+
+Após Fase 0 validada, construir mais 4 agents:
+- **Weekly Pipeline Digest:** 30 min/semana economizados
+- **Meeting Prep Briefer:** 50 min/semana economizados
+- **Opportunity Creator:** 15 min/semana economizados
+- **Follow-up Drafter:** 15 min/semana economizados
+
+**Total potencial:** 110 min/semana economizados (~2h) + Process 2.2 já operacional
+
+### Visão Futura (Fase 4)
+
+Agents isolados evoluem para **orquestração integrada**:
+- Reunião acontece → Agent 2.2 avança pipeline → Agent 2.1 prepara próxima reunião → Agent 4.0 drafta follow-up
+- **Resultado:** Zero esforço manual, workflows end-to-end automatizados
+
+### Como Prosseguir
+
+**Está pronto para começar Fase 0?**
+
+Diga: `"Implementar agent mirror 2.2"` e eu começo a codificar seguindo a spec em `docs/2.2-opportunity-advancer.md`.
+
+Ou, se preferir revisar algo primeiro:
+- `"Revisar spec do agent 2.2"` - Vamos reler juntos e ajustar
+- `"Explicar arquitetura"` - Aprofundar em como tudo funciona
+- `"Ver cronograma detalhado"` - Review completo das 5 fases
 
 ---
 
 **Fim do Documento**
-**Versão:** 1.0
-**Próxima Revisão:** Após implementação do Weekly Pipeline Digest
+**Versão:** 2.0 (Reorganizado)
+**Última Atualização:** 2025-11-20
+**Próxima Revisão:** Após conclusão da Fase 0
