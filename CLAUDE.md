@@ -78,6 +78,69 @@ Key properties to understand:
 - `Status`: Workflow state (In Progress, Waiting Feedback, Scheduled, etc.)
 - Date properties: Use `date:{property}:start`, `date:{property}:end`, `date:{property}:is_datetime`
 
+## CRM Process Automation & Agents
+
+### Process Architecture
+
+This project implements a **process-to-agent mapping** where each daily CRM workflow is automated by a specialized AI agent/skill. See `plano-atualizado.md` for the complete strategic plan and implementation roadmap.
+
+**Current Implementation Status:**
+
+| Process | Agent/Skill | Status |
+|---------|-------------|--------|
+| 2.2 - Avanço da Oportunidade | Opportunity Advancer | ✅ Operational |
+| 3.0 - Weekly Pipeline Review | Weekly Pipeline Digest | 🎯 Priority 1 |
+| 2.1 - Preparação para Encontro | Meeting Prep Briefer | 📋 Planned (Phase 2) |
+| 1.0 - Entrada de Oportunidades | Opportunity Creator | 📋 Planned (Phase 2) |
+| 4.0 - Follow-up Management | Follow-up Drafter | 📋 Planned (Phase 3) |
+| 5.0 - Orquestração Integrada | CRM Orchestrator | 🔮 Future (Phase 4) |
+
+### Process 2.2: Opportunity Advancement (Operational)
+
+**Trigger:** `"Atualize o avanço da oportunidade [Nome]"`
+
+**Workflow:**
+1. AI loads most recent meeting notes (Anotações) or Offline Notes
+2. AI analyzes transcripts/notes and auto-fills 5 fields:
+   - **Update Log**: 1 concise sentence (max 10 words)
+   - **Next Action**: Clear objective action (verb + object)
+   - **Next Action Date**: AI suggests date (last interaction + 7 days default)
+   - **Biz Funnel**: Detects stage advancement signals
+   - **Status**: In Progress / Waiting Feedback / Scheduled
+3. User reviews and confirms changes
+4. Pipeline moves forward with clear next action
+
+**Documentation:** Fully documented in Notion at `/Processos de Negócio - CRM Workflow - 2.2 - Avanço`
+
+**AI Configuration:** Implemented in My Notion AI with command syntax and processing logic
+
+### Weekly Pipeline Digest (Priority 1)
+
+**Purpose:** Automated weekly pipeline health report identifying risks, opportunities, and action items. Replaces 30 minutes of manual view reviews with 5 minutes of actionable digest.
+
+**Output Includes:**
+- Pipeline Health Score (velocity, conversion rate, stalled count)
+- Immediate action items (overdue, stalled >14 days)
+- Revenue opportunities (high-momentum deals)
+- Weekly agenda (Next Actions by date)
+
+**Status:** Specified in `plano-atualizado.md`, ready for implementation
+
+### Future Vision: Orchestrated Workflows
+
+Agents will eventually work together in integrated workflows. Example:
+- **Trigger:** New meeting note created (Anotação)
+- **Workflow:** Opportunity Advancer processes transcript → Detects stage advancement → Meeting Prep Briefer generates briefing for next meeting → Follow-up Drafter creates thank-you email
+- **Result:** Pipeline advanced, next meeting prepped, follow-up drafted - all automated
+
+**Timeline:** Phase 4 (weeks 11-16), after foundational agents are stable
+
+### Key References
+
+- **Strategic Plan:** `plano-atualizado.md` - Complete architecture, roadmap, and decisions
+- **Process Documentation:** Notion `/Processos de Negócio - CRM Workflow/` pages
+- **AI Configuration:** Notion `/My Notion AI` - Agent instructions and commands
+
 ## Troubleshooting
 
 ### MCP Connection Issues
