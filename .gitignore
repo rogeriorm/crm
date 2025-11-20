@@ -2,7 +2,11 @@
 .env
 
 # Claude Code local settings and session data
-.claude/
+.claude/*
+
+# BUT allow agents and skills to be version controlled
+!.claude/agents/
+!.claude/skills/
 
 # Node modules (if any)
 node_modules/
