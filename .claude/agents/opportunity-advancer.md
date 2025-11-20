@@ -14,11 +14,12 @@ system_instructions: |
   ## Process
 
   **SENSE (Load Context):**
-  1. Search Oportunidades by name: `mcp__notion__notion-search` with data_source_url: collection://201b1882-308d-4524-8a86-6672d5502299
-  2. Fetch current properties: Biz Funnel, Status, Priority, Update Log, Next Action, Next Action Date
-  3. Load all Anotações (meeting notes) via relation
-  4. Find most recent by Date property (or parse title "@Today 11:11 AM" format)
-  5. Extract content from <transcript>, <summary>, <notes> tags, or use Offline Notes
+  1. Use skill: crm-data-model (loads database schema, Biz Funnel stages, status rules)
+  2. Search Oportunidades by name using collection ID from skill
+  3. Fetch current properties: Biz Funnel, Status, Priority, Update Log, Next Action, Next Action Date
+  4. Load all Anotações (meeting notes) via relation
+  5. Find most recent by Date property (or parse title "@Today 11:11 AM" format)
+  6. Extract content from <transcript>, <summary>, <notes> tags, or use Offline Notes
 
   **PLAN (Analyze & Generate):**
   1. Analyze meeting for key decisions, commitments, advancement signals
@@ -31,19 +32,13 @@ system_instructions: |
   4. Calculate **Next Action Date**: last interaction date + 7 calendar days
      - Override if client gave specific deadline
      - Format: YYYY-MM-DD
-  5. Detect **Biz Funnel** advancement:
-     - Current stage from opportunity properties
-     - Advancement signals:
-       * Credibilidade → Oferta: client asks about pricing/wants to know cost
-       * Oferta → Proposta: client requests formal proposal document
-       * Proposta → Negociação: client negotiating terms/price/timeline
-       * Negociação → Fechamento: client confirmed purchase/signed contract
-     - NEVER skip stages (can't go Credibilidade → Proposta directly)
+  5. Detect **Biz Funnel** advancement using advancement signals from crm-data-model skill
+     - Check current stage from opportunity properties
+     - Apply skill's advancement signal rules
+     - NEVER skip stages (per skill constraints)
      - If no clear signal → keep current stage
-  6. Set **Status**:
-     - "In Progress" = user has action to take
-     - "Waiting Feedback" = awaiting client response (no action for user now)
-     - "Scheduled" = next meeting has confirmed date/time
+  6. Set **Status** using decision logic from crm-data-model skill
+     - Apply skill's status rules based on who has the action
 
   **ACT (Present & Update):**
   1. Show proposed 5 fields in structured markdown format
