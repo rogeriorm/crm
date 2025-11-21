@@ -6,31 +6,44 @@
 
 **Collection ID:** `collection://201b1882-308d-4524-8a86-6672d5502299`
 
+**🔗 Direct Access:** [Open in Notion](https://www.notion.so/201b1882308d45248a866672d5502299)
+
 **Purpose:** Track business opportunities through sales funnel
 
-## Key Properties
+## Fields Reference
 
-### Core Fields
-- **Task** (title): Opportunity name/description
-- **Biz Funnel** (select): Current sales stage (see below)
-- **Status** (select): Workflow state
-- **Priority** (select): High | Medium | Low
+| Field | Type | Notes |
+|-------|------|-------|
+| **Nome Oportunidade** | title | Primary identifier |
+| **Biz Funnel** | select | 11 stages (see below) |
+| **Status** | status | 8 options (see below) |
+| **Priority** | select | High / Medium / Low |
+| **BTAG** | multi-select | Business tags |
+| **Update Log** | text | Newest first, DD/MM format, APPEND only |
+| **Next Action** | text | Verb + object, specific |
+| **NAction Due** | date | Use `date:NAction Due:start` format |
+| **AI Advancement Recommendation** | text | 2-3 sentences, can be empty |
+| **Due** | date | Overall deadline |
+| **Days in Stage** | formula | Read-only, auto-calculated |
+| **Days Until Due** | formula | Read-only, auto-calculated |
+| **Anotações** | relation | Meeting notes (inline or linked) |
+| **relTasksNotes** | relation | Secondary notes link |
+| **Contatos** | relation | People |
+| **Cliente** | relation | Companies |
+| **Source** | relation | Opportunity source |
+| **Last Edited Time** | system | Auto-tracked |
 
-### Action Fields
-- **Update Log** (text): Chronological updates, newest first, format "DD/MM: [action]"
-- **Next Action** (text): Specific next step (verb + object)
-- **Next Action Date** (date): When to act
+### Field Usage Notes
 
-### Related Data
-- **Anotações** (relation): Meeting notes with transcripts/summaries
-- **Offline Notes** (text): Manual notes (fallback if no Anotações)
-- **Contatos** (relation): People involved
-- **Cliente** (relation): Company/organization
+**Update Log:** Always APPEND new entries, never replace. Format: `DD/MM: [max 10 words]`
 
-### Calculated Fields
-- **Days in Stage** (formula): Time in current Biz Funnel stage
-- **Days Until Due** (formula): Time remaining to deadline
-- **Due** (date): Deadline/target close date
+**NAction Due:** Use MCP format: `"date:NAction Due:start": "YYYY-MM-DD"`, `"date:NAction Due:is_datetime": 0`
+
+**AI Advancement Recommendation:** Strategic insights from multi-interaction analysis. Optional (can be empty).
+
+**Formulas (Days in Stage, Days Until Due):** Read-only, do not attempt to update.
+
+**Anotações:** Can be inline (page content) or linked (relation URLs). Check both patterns.
 
 ## Biz Funnel Stages (11 stages)
 
@@ -61,61 +74,205 @@
 
 ## Status Options
 
-- **In Progress:** User has action to take right now
-- **Waiting Feedback:** Awaiting client response (no action for user)
-- **Scheduled:** Next action/meeting has confirmed date/time
-- **On Hold:** Temporarily paused (budget freeze, timing issues)
-- **Lost:** Deal did not close
-- **Won:** Deal closed successfully
+**8 options in 3 groups:**
+- **To-do:** Not started, In Planning
+- **In Progress:** Scheduled, On Hold, Waiting Feedback, In progress
+- **Complete:** Done, Archived
 
-### Status Decision Logic
-- If Next Action is something user must do → "In Progress"
-- If waiting on client decision/response → "Waiting Feedback"
-- If next meeting is booked → "Scheduled"
+### Primary Status Decision Logic
+- User has action to take → **"In progress"**
+- Awaiting client response → **"Waiting Feedback"**
+- Next meeting booked → **"Scheduled"**
+- Temporarily paused → **"On Hold"**
 
-## Anotações (Meeting Notes) Structure
+## Meeting Data Storage Patterns
 
-**Content Tags:**
+Customer interactions stored in 2 patterns:
+
+### Pattern 1: Inline Anotações (Embedded in Page Content)
+- Meeting content embedded directly in Opportunity page content
+- Structure: Content includes `<transcript>`, `<summary>`, `<notes>` XML tags
+- Use case: Quick access, single-page view, lightweight interactions
+- MCP fetch behavior: Page content includes meeting data inline
+
+### Pattern 2: Linked Anotações (Separate Pages)
+- Anotações property contains relation URLs to separate pages
+- Each URL points to a page in Anotações database
+- Structure: Each page has `<transcript>`, `<summary>`, `<notes>` tags
+- Use case: Multiple meetings, better organization, auto-generated via Notion AI
+- MCP fetch behavior: Anotações property returns array of page URLs
+
+**Anotações Page Properties:**
+- **Date** (date): When meeting occurred
+- **Title** (title): Often format "@Today 11:11 AM (GMT-3)" or "@DD/MM HH:MM AM/PM"
+
+### Detection Priority (for agents)
+When loading meeting data:
+1. **First:** Check Opportunity page content for inline `<transcript>`, `<summary>`, or `<notes>` tags
+2. **Second:** Check Anotações relation property for linked pages
+
+### Content Tags
 - `<transcript>`: Full meeting transcript (auto-generated or manual)
 - `<summary>`: AI-generated summary of key points
 - `<notes>`: User notes and observations
 
-**Properties:**
-- **Date** (date): When meeting occurred
-- **Title** (title): Often format "@Today 11:11 AM (GMT-3)" or "@DD/MM HH:MM AM/PM"
-
-**Loading Priority:**
+### Content Loading Priority
+When extracting content from a meeting interaction:
 1. Use `<transcript>` if available (most detailed)
 2. Fallback to `<summary>` if no transcript
 3. Fallback to `<notes>` if no summary
-4. Last resort: Opportunity's "Offline Notes" field
 
-## Update Log Format
+## Update Log Format & Strategic Principles
 
 **Format:** Reverse chronological (newest first)
 
 **Entry Format:** `DD/MM: [action or result]`
 
-**Rules:**
+**Core Rules:**
 - Max 10 words per entry
 - Focus on KEY decision/action/result only
-- NOT a full summary
-- Examples:
-  - ✅ "18/11: cliente aprovou proposta técnica"
-  - ✅ "15/11: enviada proposta comercial revisada"
-  - ❌ "18/11: tivemos reunião muito boa onde discutimos diversos aspectos e cliente gostou"
+- NOT a meeting summary
 
-**IMPORTANT:** Always APPEND new entries, never replace existing log
+**Strategic Principles:**
+
+### For Interactions WITH Advancement
+Log the KEY signal that indicates progress:
+- ✅ "18/11: cliente aprovou proposta técnica" (DECISION)
+- ✅ "15/11: cliente confirmou budget aprovado" (ADVANCEMENT SIGNAL)
+- ✅ "12/11: cliente solicitou proposta formal" (STAGE TRIGGER)
+
+### For Interactions WITHOUT Advancement
+Log the strategic CONTEXT/REASON:
+- ✅ "18/11: cliente aguardando aprovação do board" (EXPLAINS DELAY)
+- ✅ "15/11: definido timeline para decisão até 30/11" (CONTEXTUAL INFO)
+- ✅ "12/11: validado fit técnico, aguarda budget Q1" (PROGRESS + BLOCKER)
+
+### What NOT to Log
+- ❌ "18/11: tivemos reunião muito boa" (NO INFORMATION)
+- ❌ "15/11: call de acompanhamento realizado" (NO VALUE)
+- ❌ "12/11: discutimos diversos aspectos do projeto" (VAGUE)
+
+**CRITICAL RULE:** Always APPEND new entries, never replace existing log
+
+## Interaction Analysis Strategy
+
+**Goal:** Extract strategic insights from customer interactions, not just summarize meetings
+
+### Multi-Source Pattern Recognition
+
+When analyzing opportunities:
+1. **Load multiple recent interactions** (2-3 most recent, not just one)
+2. **Analyze across all sources** for patterns and signals
+3. **Prioritize strategic content** over chronological recency
+4. **Identify advancement patterns** across multiple touchpoints
+
+### Pattern Categories to Detect
+
+**Escalating Interest:**
+- Questions becoming more specific/detailed
+- Client proactively following up
+- Mentions of timeline, budget, implementation
+
+**Stalling Signals:**
+- No concrete commitments across multiple interactions
+- Repeated postponements
+- Generic responses without advancement
+
+**Advancement Triggers:**
+- Repeated mentions of same topic (e.g., pricing mentioned 3x)
+- Client asking "how" or "when" questions
+- Introduction to decision-makers
+- Budget/timeline confirmations
+
+**Strategic Context:**
+- External blockers (board approval, budget cycles)
+- Internal dependencies (technical validation, legal review)
+- Competitive dynamics
+
+### Interaction Selection Logic
+
+**Default:** Use most recent interaction by date/timestamp
+
+**Strategic override:**
+- If most recent is just "check-in" with no signals → look back for meaningful content
+- Prioritize interactions with decisions, commitments, or stage signals
+- Consider synthesizing insights from 2-3 recent interactions
+
+**Hierarchy:**
+1. Most recent interaction WITH advancement signals
+2. If none, analyze most recent for implicit signals or strategic context
+3. If truly no signals, focus Next Action on creating advancement opportunity
+
+## AI Advancement Recommendation Guidelines
+
+**Purpose:** Provide strategic insights the user might miss by analyzing patterns across interactions
+
+### Content Categories
+
+**1. Pattern Recognition**
+- "Cliente mencionou orçamento em 3 interações recentes - sinal forte de interesse em proposta formal"
+- "Perguntas evoluindo de 'quanto custa' para 'como implementar' - indica avanço de Oferta → Proposta"
+
+**2. Opportunity Detection**
+- "Momento ideal para proposta detalhada: budget confirmado + timeline definido"
+- "Cliente respondeu rapidamente em todas interações - alta prioridade, acelerar processo"
+
+**3. Risk Warnings**
+- "Sem avanço há 14 dias apesar de cliente responsivo - considerar proposta mais proativa"
+- "Sinais mistos: interesse alto mas sem compromissos concretos - validar budget e autoridade"
+- "Cliente adiou reunião 2x sem reagendar - possível perda de prioridade"
+
+**4. Blind Spots / Strategic Suggestions**
+- "Considere validar autoridade de decisão antes de investir em proposta detalhada"
+- "Cliente mencionou concorrente X - preparar diferenciação para próxima interação"
+- "Timeline do cliente (Q1) requer proposta até [data] para viabilizar implementação"
+
+### Format Rules
+
+- **Length:** 2-3 sentences maximum
+- **Specificity:** Based on data patterns from interactions, not speculation
+- **Actionability:** Should inform strategy or next actions
+- **Optional:** Can be left empty if no significant insights to add
+- **Tone:** Direct and consultative, not salesy
+
+### Examples
+
+**Good:**
+```
+"Cliente mencionou orçamento 3x e agora confirmou aprovação - momento ideal para
+proposta formal detalhada. Considere incluir case study similar para reforçar
+credibilidade e acelerar decisão."
+```
+
+**Good:**
+```
+"Sem movimento há 21 dias mas cliente mantém interesse (respondeu última mensagem
+rapidamente). Sugerir reunião objetiva para validar timeline e desbloquear processo."
+```
+
+**Good:**
+```
+"Padrão detectado: cliente está avaliando 2 fornecedores e pediu proposta de ambos.
+Destacar diferenciais técnicos e referências do setor na proposta para criar vantagem."
+```
+
+**Avoid:**
+```
+"Cliente parece interessado. Continue acompanhando."
+(Too generic, no specific insight or action)
+```
 
 ## Date Property Format
 
 When updating date properties via MCP:
 ```json
 {
-  "date:Next Action Date:start": "YYYY-MM-DD",
-  "date:Next Action Date:is_datetime": 0
+  "date:NAction Due:start": "YYYY-MM-DD",
+  "date:NAction Due:is_datetime": 0
 }
 ```
+
+**Note:** Field name is "NAction Due" (not "Next Action Date")
 
 ## Common Queries
 
@@ -140,8 +297,10 @@ command: "update_properties"
 properties: {
   "Update Log": "{new_entry}\n{existing_log}",
   "Next Action": "...",
-  "date:Next Action Date:start": "YYYY-MM-DD",
+  "date:NAction Due:start": "YYYY-MM-DD",
+  "date:NAction Due:is_datetime": 0,
   "Biz Funnel": "...",
-  "Status": "..."
+  "Status": "...",
+  "AI Advancement Recommendation": "..."
 }
 ```
