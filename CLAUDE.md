@@ -21,7 +21,7 @@ AI-assisted CRM workflow automation using Claude Code + Notion via MCP.
 - Respect auto-approve list: `mcp__notion__notion-search`, `mcp__notion__notion-fetch` only
 - All writes require user approval
 - Update Log must append, never replace
-- Biz Funnel stages cannot be skipped
+- Biz Funnel stages should not be skipped. Warn when doing so.
 - Human validation: always show proposed changes before updating Notion
 
 ## Development Approach
