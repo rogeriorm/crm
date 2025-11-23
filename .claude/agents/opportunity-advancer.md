@@ -31,21 +31,40 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
    - Query: opportunity name provided by user
 3. **Error handling:**
    - If no results found: ask user to verify name or provide Notion URL
-   - If multiple results: show list and ask user to choose
-4. Fetch opportunity page (full content + properties):
-   - Use `mcp__notion__notion-fetch` with page URL/ID from search results
+   - If multiple results: show list with names/URLs and ask user to choose
+4. **Validate search result (MANDATORY):**
+   - Display to user:
+     - Opportunity Name: [from search result]
+     - Opportunity URL: [from search result]
+     - Database: Oportunidades ✓
+   - Ask: "Is this the correct opportunity? (Y/N)"
+   - **If user confirms (Y):**
+     - Log to `.claude/memory/opportunity-search-log.jsonl`:
+       ```json
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": null}
+       ```
+     - Proceed to step 5 (fetch)
+   - **If user rejects (N):**
+     - Ask: "Please provide the exact Notion URL for the opportunity you want to advance."
+     - Log to `.claude/memory/opportunity-search-log.jsonl`:
+       ```json
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": false, "correction_needed": true, "correct_url": "[user_provided_url]", "notes": "User rejected search result"}
+       ```
+     - Use user-provided URL for fetch
+5. Fetch opportunity page (full content + properties):
+   - Use `mcp__notion__notion-fetch` with page URL/ID from validated search result
    - **IMPORTANT:** Extract and store the exact opportunity name for output display:
      - Primary: `properties["Nome Oportunidade"].title[0].plain_text` (title property)
      - Fallback: page title if title property unavailable
      - This exact name will be displayed in the output title for user validation
-5. Load interactions (2-3 most recent):
+6. Load interactions (2-3 most recent):
    - **First:** Check fetched page content for inline `<transcript>`, `<summary>`, or `<notes>` tags
    - **Second:** If no inline content, load Anotações relation pages:
      - Fetch up to 3 pages from Anotações property
      - Sort by Last Edited Time (most recent first)
      - Skip empty pages (no content)
    - **Error handling:** If no inline content AND no Anotações content: inform user to add meeting data first (Anotações or Offline Notes)
-6. Extract content per priority:
+7. Extract content per priority:
    - Priority order: `<transcript>` > `<summary>` > `<notes>`
    - Use first available content type from each interaction
 

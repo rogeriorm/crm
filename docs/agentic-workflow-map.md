@@ -32,13 +32,19 @@ Both flows embody the principle: **Works → Fast → Validated → Iterated**
     │ advancer         │
     └──────────────────┘
            │
-           │  Updates 6 fields:
-           │  - Update Log
-           │  - Next Action
-           │  - NAction Due
-           │  - Biz Funnel Stage
-           │  - Status
-           │  - AI Recommendation
+           │  Process:
+           │  1. Search Oportunidades by name
+           │  2. Validate search result with user ⭐ NEW
+           │  3. Log search accuracy to memory ⭐ NEW
+           │  4. Fetch opportunity data
+           │  5. Analyze interactions
+           │  6. Update 6 fields:
+           │     - Update Log
+           │     - Next Action
+           │     - NAction Due
+           │     - Biz Funnel Stage
+           │     - Status
+           │     - AI Recommendation
            │
            ↓
     [11-stage Biz Funnel]
@@ -136,9 +142,19 @@ Both flows embody the principle: **Works → Fast → Validated → Iterated**
            │                             │
            └──────────┬──────────────────┘
                       ↓
-           Optimized Implementation
-                      │
-                      ↓
+    ┌──────────────────────────────────────┐
+    │ system-implementer                   │  ✅ OPERATIONAL
+    └──────────────────────────────────────┘
+           │
+           │  Executes:
+           │  - Reads current system state
+           │  - Plans minimal changes (skills → agents → docs)
+           │  - Shows proposed changes (approval gates)
+           │  - Implements sequentially
+           │  - Validates no regression
+           │  - Updates all documentation
+           │
+           ↓
            Implementation → Testing → Iteration
                       │
                       ↓
@@ -210,6 +226,7 @@ Technical Enablement → Business Operations:
 | **cs-agent-validator** | ✅ Operational | Technical | User provides feedback/observations | Validated feedback + GitHub issue |
 | **ai-enablement-reviewer** | ✅ Operational | Technical | User: agent/skill completion | Optimization recommendations |
 | **business-architect** | ✅ Operational | Technical | User: process design request | SPAR-based architecture |
+| **system-implementer** | ✅ Operational | Technical | User: "implement issue #N" or "implement [description]" | Code changes + validation checklist |
 | **customer-success** | 🚧 Planned | Business | Stage = Relacionamento | Health monitoring, renewal signals |
 
 ### Planned Agents (Prioritized)

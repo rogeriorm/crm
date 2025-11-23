@@ -4,9 +4,10 @@
 # Claude Code local settings and session data
 .claude/*
 
-# BUT allow agents and skills to be version controlled
+# BUT allow agents, skills, and memory to be version controlled
 !.claude/agents/
 !.claude/skills/
+!.claude/memory/
 
 # Node modules (if any)
 node_modules/

@@ -1,0 +1,4 @@
+# Opportunity Search Validation Log
+# Schema: {"timestamp": "ISO-8601", "query": "string", "returned_name": "string", "returned_url": "string", "user_validated": boolean, "correction_needed": boolean, "correct_url": "string|null", "notes": "string|null"}
+# Purpose: Track search accuracy to improve opportunity identification over time
+# Format: One JSON object per line (JSONL), append-only
