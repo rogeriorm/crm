@@ -10,14 +10,14 @@ permissionMode: ask
 ---
 
 ## Mission
-After client meetings, update 5 opportunity fields with strategic analysis to keep pipeline moving.
+After client meetings, update 6 opportunity fields with strategic analysis to keep pipeline moving.
 
 ## Prerequisites
 **IMPORTANT:** This agent expects the `crm-data-model` skill context to be available in the conversation. The skill provides:
 - Oportunidades database schema and collection ID
 - Biz Funnel stage definitions and advancement signals
 - Status decision logic
-- Notas/Histórico formatting rules
+- Update Log formatting rules
 - Date property format specifications
 
 If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.md` directly.
@@ -54,14 +54,13 @@ Multi-source strategic analysis across 2-3 recent interactions:
    - Stalling signals (no concrete commitments)
    - Advancement signals (per Biz Funnel rules from skill)
 
-2. Generate **Notas update** (Histórico section):
+2. Generate **Update Log**:
    - Apply crm-data-model Strategic Principles (log only: decisions, advancement signals, blockers)
-   - Format: `### YYYY-MM-DD HH:MM #ai\n{action_description}\n\n`
-   - **CRITICAL:** APPEND to existing Notas content:
-     - Preserve all existing sections (Status, Próximos passos, Contexto)
-     - If "## Histórico" section exists: insert new entry immediately after the header
-     - If "## Histórico" does not exist: append it, then add new entry
-   - Never replace existing content
+   - Format: "DD/MM: [max 10 words]"
+   - **CRITICAL:** APPEND to existing log using exact concatenation:
+     - `"{new_entry}\n{existing_update_log}"`
+     - Example result: "22/11: proposta enviada\n18/11: reunião confirmou interesse"
+   - Never replace existing log
 
 3. Determine **Next Action**:
    - Specific, actionable (verb + object)
@@ -71,7 +70,7 @@ Multi-source strategic analysis across 2-3 recent interactions:
    - Default: Last interaction + 7 days
    - Override if client gave specific deadline
 
-5. Determine **Biz Funnel** advancement:
+5. Detect **Biz Funnel** advancement:
    - Apply crm-data-model advancement signals
    - **RULE:** NEVER skip stages (e.g., Credibilidade → Proposta is INVALID)
    - Only change if clear signals detected
@@ -90,7 +89,7 @@ Multi-source strategic analysis across 2-3 recent interactions:
    - Can be empty if no significant patterns detected
 
 **ACT (Present & Update):**
-1. Show proposed 5 fields in structured markdown format (see Output Format below)
+1. Show proposed 6 fields in structured markdown format (see Output Format below)
 2. Include current values for comparison
 3. If Biz Funnel changed, explain reasoning in 1 sentence
 4. Highlight AI Advancement Recommendation prominently
@@ -101,7 +100,7 @@ Multi-source strategic analysis across 2-3 recent interactions:
      "page_id": "{page_id}",
      "command": "update_properties",
      "properties": {
-       "Notas": "{existing_notas_content}\n\n### YYYY-MM-DD HH:MM #ai\n{action_description}\n",
+       "Update Log": "{new_entry}\n{existing_update_log}",
        "Next Action": "{proposed_next_action}",
        "date:NAction Due:start": "YYYY-MM-DD",
        "date:NAction Due:is_datetime": 0,
@@ -117,17 +116,16 @@ Multi-source strategic analysis across 2-3 recent interactions:
    - If error: show error message to user
    - If date property error: verify format is `date:NAction Due:start` and `date:NAction Due:is_datetime: 0`
 2. Sanity check: do updated values make sense?
-   - Notas has new Histórico entry with #ai tag
+   - Update Log has new entry at top
    - Biz Funnel didn't skip stages
    - Next Action is specific and actionable
 3. Consider: should this trigger another agent? (e.g., stage change → meeting prep)
 4. Log which interactions were analyzed (for debugging)
 
 ## Constraints
-- Histórico entries use format: `### YYYY-MM-DD HH:MM #ai`
+- Update Log MUST be ≤10 words
 - NEVER skip Biz Funnel stages
-- ALWAYS append to Notas/Histórico (never replace existing content)
-- ALWAYS preserve existing Notas sections (Status, Próximos passos, Contexto)
+- ALWAYS append to Update Log (never replace)
 - "Waiting Feedback" status ONLY if truly waiting on client
 - Next Action must be specific enough to know what to do
 - Date properties use format: `date:NAction Due:start` and `date:NAction Due:is_datetime: 0`
@@ -144,14 +142,13 @@ Multi-source strategic analysis across 2-3 recent interactions:
 
 ## Proposed Updates
 
-### 1. Notas (Histórico Entry)
-```markdown
-### YYYY-MM-DD HH:MM #ai
-{action_description}
+### 1. Update Log
 ```
-**Current Histórico (first 2-3 entries):**
-```markdown
-{first 2-3 entries of current Histórico section}
+{proposed_update_log}
+```
+**Current (first 2-3 lines):**
+```
+{first 2-3 lines of current update log}
 ```
 
 ### 2. Next Action
@@ -160,20 +157,20 @@ Multi-source strategic analysis across 2-3 recent interactions:
 ```
 **Current:** {current_next_action}
 
-### 3. Biz Funnel Stage
+### 3. NAction Due
+```
+{proposed_naction_due}
+```
+**Current:** {current_naction_due}
+**Rationale:** Last interaction + 7 days (or client deadline if mentioned)
+
+### 4. Biz Funnel Stage
 ```
 {proposed_biz_funnel}
 ```
 **Current:** {current_biz_funnel}
 **Changed:** {yes/no}
 {if changed: **Reasoning:** {1 sentence why}}
-
-### 4. NAction Due
-```
-{proposed_naction_due}
-```
-**Current:** {current_naction_due}
-**Rationale:** Last interaction + 7 days (or client deadline if mentioned)
 
 ### 5. Status
 ```
