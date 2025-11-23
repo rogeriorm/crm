@@ -1,8 +1,35 @@
-# Opportunity Advancer Agent - Quick Start
+# CRM Agents - Quick Start
 
-## What It Does
+This directory contains specialized agents for CRM workflow automation and system improvement.
 
+## Available Agents
+
+### 1. opportunity-advancer (Business Operations)
 Mirrors your Notion AI Process 2.2: analyzes meeting notes and recommends 6 field updates to keep your pipeline moving.
+
+**Invocation:** `"Analyze opportunity [Name]"`
+
+### 2. system-implementer (Technical Enablement)
+Executes validated system modifications while preventing degradation and maintaining all project principles.
+
+**Invocation:** `"Implement issue #[number]"` or `"Implement [description]"`
+
+### 3. cs-agent-validator (Technical Enablement)
+Validates user feedback against project specifications and creates GitHub issues for improvements.
+
+### 4. ai-enablement-reviewer (Technical Enablement)
+Reviews agent configs, prompts, skills for token efficiency and business value.
+
+### 5. business-architect (Technical Enablement)
+Designs business processes using agentic AI systems with SPAR framework.
+
+---
+
+## Opportunity Advancer Agent
+
+### What It Does
+
+Analyzes meeting notes and recommends 6 field updates to keep your pipeline moving.
 
 ## How to Use
 
@@ -146,6 +173,205 @@ After validating this agent works (Phase 0 complete):
 - **Phase 2:** Meeting Prep Briefer
 - **Phase 3:** Follow-up Drafter
 - **Phase 4:** Orchestration (agents working together)
+
+---
+
+## System Implementer Agent
+
+### What It Does
+
+Executes validated system modifications (from GitHub issues, cs-agent-validator, ai-enablement-reviewer, or business-architect) with disciplined engineering practices that prevent system degradation.
+
+### How to Use
+
+#### Basic Invocation
+
+```
+"Implement issue #2"
+```
+
+or
+
+```
+"Implement: Add validation for empty Biz Funnel"
+```
+
+### What Happens
+
+1. **SENSE:** Loads the request and understands current system state
+   - Reads GitHub issue or clarifies description
+   - Scans PRINCIPLES.md, CLAUDE.md, agentic-workflow-map.md
+   - Maps dependencies and affected files
+   - Assesses risk level (low/medium/high)
+
+2. **PLAN:** Designs minimal solution and presents for approval
+   - Lists all files requiring changes
+   - Sequences changes (bottom-up: skills → agents → docs)
+   - Estimates effort per file
+   - Shows proposed changes with risk assessment
+   - Waits for explicit approval
+
+3. **ACT:** Implements changes sequentially
+   - Reads current state of each file
+   - Shows proposed change before applying
+   - Requests approval for critical files
+   - Executes change and verifies success
+   - Updates checklist as progresses
+
+4. **REFLECT:** Validates implementation quality
+   - Checks completeness (all planned changes done?)
+   - Verifies consistency (no orphaned references?)
+   - Validates principle compliance (PRINCIPLES.md respected?)
+   - Checks for regressions (existing functionality intact?)
+   - Suggests validation steps for user testing
+   - Provides ready-to-use git commit message
+
+### Example Session
+
+```
+You: "Implement issue #2"
+
+Agent: [Reads GitHub issue #2: Consolidate Update Log into Notas]
+
+## Implementation Plan: Consolidate Update Log into Notas
+
+### Current State
+- Update Log field exists separately from Notas
+- opportunity-advancer updates 6 fields including Update Log
+- Redundancy between Update Log and Notas/Histórico
+
+### Proposed Changes
+
+#### 1. .claude/skills/crm-data-model/SKILL.md
+**Change:** Remove Update Log from field definitions, document new Notas format
+**Reason:** Eliminate redundancy, consolidate into Notas with #ai tags
+**Risk:** Low (documentation only)
+
+#### 2. .claude/agents/opportunity-advancer.md
+**Change:** Remove Update Log from 6-field list, add Notas prepend logic
+**Reason:** Implement new consolidated approach
+**Risk:** Medium (affects core agent logic)
+
+[... more files ...]
+
+Total: 1-1.5 hours
+
+**Proceed with implementation?** [Y/N]
+
+You: Y
+
+Agent: [Implements changes sequentially, showing each modification]
+Agent: [Updates docs to match code changes]
+Agent: [Validates no broken references]
+
+## Implementation Complete
+
+### Changes Applied
+- crm-data-model skill: Updated field definitions
+- opportunity-advancer agent: Now writes to Notas with #ai tags
+- Documentation: Updated CLAUDE.md, phase-0 docs
+
+### Validation Status
+✅ All files modified successfully
+✅ No orphaned references found
+✅ PRINCIPLES.md compliance maintained
+🚧 Pending: Test opportunity-advancer with sample opportunity
+
+### Recommended Next Steps
+1. Test: "Analyze opportunity [Name]" to verify Notas format
+2. Verify: Updates appear as "### YYYY-MM-DD HH:MM #ai"
+3. Validate: No Update Log references remain in output
+
+**Ready to commit and push.**
+```
+
+### When to Use
+
+- After cs-agent-validator creates a GitHub issue
+- When ai-enablement-reviewer provides optimization recommendations
+- When business-architect designs a new process to implement
+- For any system modification that affects multiple files
+- When you need disciplined, principle-respecting implementation
+
+### Safety Features
+
+**The agent will:**
+- ✅ Always read files before modifying
+- ✅ Show proposed changes before executing
+- ✅ Request approval for critical modifications
+- ✅ Validate no functionality regression
+- ✅ Update documentation to match code
+- ✅ Check cross-references for consistency
+- ✅ Respect all 20 PRINCIPLES.md guidelines
+- ✅ Maintain human validation gates
+- ✅ Provide validation checklist for testing
+
+**The agent will NOT:**
+- ❌ Modify code without reading it first
+- ❌ Skip documentation updates
+- ❌ Add features beyond requested scope
+- ❌ Remove functionality without approval
+- ❌ Break existing agents to fix one issue
+- ❌ Implement without presenting plan first
+
+### Risk Assessment
+
+**Low Risk Changes:**
+- Documentation-only updates
+- Single file modifications
+- No breaking changes to APIs or data model
+
+**Medium Risk Changes:**
+- Multi-file updates
+- Agent logic modifications
+- Affects 1-2 agents
+
+**High Risk Changes:**
+- Data model modifications
+- Affects multiple agents
+- Alters user workflow
+- Changes MCP integrations
+
+High risk changes receive extra scrutiny and detailed approval gates.
+
+### Integration with Workflow
+
+This agent is part of the **Technical Enablement Flow** in the agentic workflow:
+
+```
+User Feedback → cs-agent-validator → GitHub Issue →
+  system-implementer → Implementation → Validation
+```
+
+It can also receive input from:
+- ai-enablement-reviewer (optimization recommendations)
+- business-architect (process designs)
+- Direct user requests (ad-hoc improvements)
+
+### Configuration
+
+**Agent file:** `.claude/agents/system-implementer.md`
+
+**Principle compliance:**
+- Principle 2: Skills vs Agents Separation
+- Principle 4: Error Handling is Non-Negotiable
+- Principle 5: Be Explicit, Never Vague
+- Principle 14: User Control First
+- Principle 16: Iterative Refinement Over Perfection
+
+### Troubleshooting
+
+**"Cannot find issue #N"**
+- Verify issue number exists in GitHub
+- Or provide description instead: "Implement: [description]"
+
+**"Plan too complex"**
+- Agent will break into smaller phases
+- Approve phase-by-phase implementation
+
+**"Change affects too many files"**
+- Agent will flag high risk
+- Review impact assessment before approving
 
 ---
 
