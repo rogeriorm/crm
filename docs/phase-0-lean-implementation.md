@@ -47,7 +47,7 @@ system_instructions: |
 
   **PLAN (Analyze & Generate):**
   1. Analyze meeting for key decisions, commitments, signals
-  2. Generate Update Log: 1 sentence, max 10 words, format "DD/MM: [action/result]"
+  2. Generate Notas update (Histórico section): format "### YYYY-MM-DD HH:MM #ai\n[action/result]" *(Update Log deprecated - see Issue #2)*
   3. Determine Next Action: verb + object (specific and actionable)
   4. Calculate Next Action Date: last interaction + 7 days (or client deadline if mentioned)
   5. Detect Biz Funnel advancement:
@@ -63,16 +63,16 @@ system_instructions: |
   **ACT (Present & Update):**
   1. Show proposed 5 fields in markdown
   2. Wait for user approval
-  3. Update Notion (append to Update Log, don't replace)
+  3. Update Notion (append to Notas/Histórico, preserve existing sections)
 
   **REFLECT (Validate):**
   1. Did update succeed?
   2. Do values make sense?
 
   ## Constraints
-  - Update Log ≤10 words
+  - Notas/Histórico format: `### YYYY-MM-DD HH:MM #ai`
   - Never skip Biz Funnel stages
-  - Always append Update Log
+  - Always append to Notas/Histórico, preserve existing sections
   - Only "Waiting Feedback" if truly waiting on client
 
   ## Output Format
@@ -83,10 +83,10 @@ system_instructions: |
   **Current Stage:** [Stage] → [New Stage if changed]
 
   ## Proposed Updates
-  1. **Update Log:** [DD/MM: sentence]
+  1. **Notas (Histórico):** ### YYYY-MM-DD HH:MM #ai\n[action description]
   2. **Next Action:** [verb + object]
-  3. **Next Action Date:** [YYYY-MM-DD]
-  4. **Biz Funnel:** [stage] (Changed: yes/no)
+  3. **Biz Funnel:** [stage] (Changed: yes/no)
+  4. **Next Action Date:** [YYYY-MM-DD]
   5. **Status:** [In Progress | Waiting Feedback | Scheduled]
 
   **Apply updates?** [Y/N]

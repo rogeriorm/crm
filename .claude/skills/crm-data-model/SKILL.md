@@ -19,7 +19,8 @@
 | **Status** | status | 8 options (see below) |
 | **Priority** | select | High / Medium / Low |
 | **BTAG** | multi-select | Business tags |
-| **Update Log** | text | Newest first, DD/MM format, APPEND only |
+| **Update Log** | text | **DEPRECATED - READ ONLY** (legacy data) |
+| **Notas** | text | Structured notes with Histórico section |
 | **Next Action** | text | Verb + object, specific |
 | **NAction Due** | date | Use `date:NAction Due:start` format |
 | **AI Advancement Recommendation** | text | 2-3 sentences, can be empty |
@@ -74,13 +75,45 @@
 **Priority:** Check inline first, then linked relations
 **Content hierarchy:** transcript > summary > notes
 
-## Update Log Format
+## Update Log Format (DEPRECATED)
 
-`DD/MM: [key decision/action/result]` - Max 10 words, newest first
+**⚠️ DEPRECATED:** This field is read-only. Use Notas/Histórico section for new updates.
 
-**Log only:** Decisions, advancement signals, stage triggers, blockers
+Legacy format was: `DD/MM: [key decision/action/result]` - Max 10 words, newest first
+
+## Notas Format
+
+**Structure:** Notas field contains structured sections for strategic context and action history.
+
+**Standard Format:**
+```markdown
+**Status:** [current situation]
+
+**Próximos passos:**
+- [action 1]
+- [action 2]
+
+**Contexto:** [relevant background information]
+
+## Histórico
+
+### YYYY-MM-DD HH:MM #ai
+[Automated action description]
+
+### YYYY-MM-DD HH:MM #ai
+[Earlier automated action]
+```
+
+**Format Rules:**
+- Histórico entries use level-3 headers (`###`) with timestamp and `#ai` tag
+- Timestamp format: `YYYY-MM-DD HH:MM` (24-hour format)
+- Most recent entries appear first (reverse chronological within Histórico)
+- Always append new Histórico entries after the `## Histórico` header
+- Preserve all existing sections (Status, Próximos passos, Contexto) when adding to Histórico
+
+**What to log in Histórico:** Decisions, advancement signals, stage triggers, blockers, AI recommendations
 **Never log:** Generic meetings, vague descriptions, no-value entries
-**CRITICAL:** Always APPEND, never replace
+**CRITICAL:** Always APPEND to Histórico, never replace existing content
 
 ## Strategic Analysis
 
@@ -141,7 +174,7 @@ mcp__notion__notion-update-page
 page_id: {page_id}
 command: "update_properties"
 properties: {
-  "Update Log": "{new_entry}\n{existing_log}",
+  "Notas": "{existing_content}\n\n### YYYY-MM-DD HH:MM #ai\n{action_description}\n",
   "Next Action": "...",
   "date:NAction Due:start": "YYYY-MM-DD",
   "date:NAction Due:is_datetime": 0,

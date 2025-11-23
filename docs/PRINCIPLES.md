@@ -131,17 +131,20 @@ Load interactions (2-3 most recent):
 
 **Bad (Ambiguous):**
 ```markdown
-APPEND to existing log
+APPEND to Notas
 ```
 
 **Good (Exact):**
 ```markdown
-APPEND using exact concatenation:
-- Format: "{new_entry}\n{existing_update_log}"
-- Example result: "22/11: proposta enviada\n18/11: reunião confirmou interesse"
+APPEND to Notas/Histórico section:
+- Read existing Notas content
+- If "## Histórico" exists: insert after header
+- If not: append "## Histórico" section first
+- Format: "{existing_content}\n\n### YYYY-MM-DD HH:MM #ai\n{action}\n"
+- Preserve all other sections (Status, Próximos passos, Contexto)
 ```
 
-**Rule:** Show the exact string operation with example output.
+**Rule:** Show the exact string operation with preservation logic.
 
 ### 7. Multi-Source Analysis Over Summaries
 
@@ -169,7 +172,23 @@ APPEND using exact concatenation:
 - Vague descriptions
 - No-value updates
 
-**Format:** `DD/MM: [max 10 words]` - newest first, always APPEND
+**Format:** Append to Notas field's Histórico section
+```markdown
+## Histórico
+
+### YYYY-MM-DD HH:MM #ai
+{action description - what you did and why}
+
+### YYYY-MM-DD HH:MM #ai
+{earlier action}
+```
+
+**Rules:**
+- Use level-3 headers (`###`) with timestamp and `#ai` tag
+- Timestamp format: `YYYY-MM-DD HH:MM` (24-hour format)
+- Most recent entries first (reverse chronological)
+- Always APPEND, never replace
+- Always preserve existing Notas sections (Status, Próximos passos, Contexto)
 
 ---
 
