@@ -34,6 +34,10 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
    - If multiple results: show list and ask user to choose
 4. Fetch opportunity page (full content + properties):
    - Use `mcp__notion__notion-fetch` with page URL/ID from search results
+   - **IMPORTANT:** Extract and store the exact opportunity name for output display:
+     - Primary: `properties["Nome Oportunidade"].title[0].plain_text` (title property)
+     - Fallback: page title if title property unavailable
+     - This exact name will be displayed in the output title for user validation
 5. Load interactions (2-3 most recent):
    - **First:** Check fetched page content for inline `<transcript>`, `<summary>`, or `<notes>` tags
    - **Second:** If no inline content, load Anotações relation pages:
@@ -132,7 +136,12 @@ Multi-source strategic analysis across 2-3 recent interactions:
 
 ## Output Format
 ```markdown
-# Opportunity Update: {Opportunity Name}
+# Opportunity Update: [EXACT Opportunity Name from Notion]
+
+> **Oportunidade:** [Exact opportunity name]
+> **Notion URL:** [Direct link to opportunity page]
+
+**IMPORTANT:** Use the EXACT opportunity name fetched from Notion (from `properties["Nome Oportunidade"]` or page title). This allows the user to immediately validate they are reviewing the correct opportunity.
 
 **Last Interaction:** {meeting_date}
 **Current Stage:** {current_biz_funnel} → {suggested_biz_funnel (if changed)}
