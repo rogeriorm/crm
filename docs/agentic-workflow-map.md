@@ -33,12 +33,13 @@ Both flows embody the principle: **Works → Fast → Validated → Iterated**
     └──────────────────┘
            │
            │  Process:
-           │  1. Search Oportunidades by name
-           │  2. Validate search result with user ⭐ NEW
-           │  3. Log search accuracy to memory ⭐ NEW
-           │  4. Fetch opportunity data
-           │  5. Analyze interactions
-           │  6. Update 6 fields:
+           │  1. Search Oportunidades by name (limit: 5 results)
+           │  2. Show multiple results if found ⭐ IMPROVED
+           │  3. Validate selected result with user ⭐ NEW
+           │  4. Log search accuracy to memory ⭐ NEW
+           │  5. Fetch opportunity data
+           │  6. Analyze interactions
+           │  7. Update 6 fields:
            │     - Update Log
            │     - Next Action
            │     - NAction Due

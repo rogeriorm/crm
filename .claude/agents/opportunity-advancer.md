@@ -27,11 +27,30 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
 **SENSE (Load Context):**
 1. Reference crm-data-model for database schema and rules
 2. Search Oportunidades by name:
-   - Use `mcp__notion__notion-search` with `data_source_url: "collection://201b1882-308d-4524-8a86-6672d5502299"`
-   - Query: opportunity name provided by user
-3. **Error handling:**
-   - If no results found: ask user to verify name or provide Notion URL
-   - If multiple results: show list with names/URLs and ask user to choose
+   - Use `mcp__notion__notion-search` with:
+     - `data_source_url: "collection://201b1882-308d-4524-8a86-6672d5502299"`
+     - `query: [opportunity name provided by user]`
+     - `limit: 5` (get up to 5 results to show user options)
+3. **Handle search results:**
+   - **If 0 results:** Ask user to verify name or provide exact Notion URL
+   - **If 1 result:** Proceed to step 4 (validation) with this result
+   - **If 2+ results:** Display all results and ask user to choose:
+     ```
+     Found multiple opportunities matching "[query]":
+
+     1. [Opportunity Name 1]
+        URL: [url1]
+
+     2. [Opportunity Name 2]
+        URL: [url2]
+
+     3. [Opportunity Name 3]
+        URL: [url3]
+
+     Please choose a number (1-N) or provide the exact Notion URL.
+     ```
+   - If user provides URL directly, use that URL
+   - If user chooses number, use corresponding result
 4. **Validate search result (MANDATORY):**
    - Display to user:
      - Opportunity Name: [from search result]
@@ -41,14 +60,14 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
    - **If user confirms (Y):**
      - Log to `.claude/memory/opportunity-search-log.jsonl`:
        ```json
-       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": null}
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": "[e.g., 'Single result' or 'User chose option 2 of 3']"}
        ```
      - Proceed to step 5 (fetch)
    - **If user rejects (N):**
      - Ask: "Please provide the exact Notion URL for the opportunity you want to advance."
      - Log to `.claude/memory/opportunity-search-log.jsonl`:
        ```json
-       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": false, "correction_needed": true, "correct_url": "[user_provided_url]", "notes": "User rejected search result"}
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": false, "correction_needed": true, "correct_url": "[user_provided_url]", "notes": "User rejected search result - [total_results] results shown"}
        ```
      - Use user-provided URL for fetch
 5. Fetch opportunity page (full content + properties):
