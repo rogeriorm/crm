@@ -15,6 +15,7 @@ After client meetings, update 6 opportunity fields with strategic analysis to ke
 ## Prerequisites
 **IMPORTANT:** This agent expects the `crm-data-model` skill context to be available in the conversation. The skill provides:
 - Oportunidades database schema and collection ID
+- **Opportunity Search Protocol** (MANDATORY search rules and validation)
 - Biz Funnel stage definitions and advancement signals
 - Status decision logic
 - Update Log formatting rules
@@ -22,13 +23,16 @@ After client meetings, update 6 opportunity fields with strategic analysis to ke
 
 If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.md` directly.
 
+**This agent MUST follow the Opportunity Search Protocol** for all opportunity searches.
+
 ## Process
 
 **SENSE (Load Context):**
 1. Reference crm-data-model for database schema and rules
-2. Search Oportunidades by name:
+2. Search Oportunidades by name (following Opportunity Search Protocol):
+   - **Validate database ID first:** `collection://201b1882-308d-4524-8a86-6672d5502299`
    - Use `mcp__notion__notion-search` with:
-     - `data_source_url: "collection://201b1882-308d-4524-8a86-6672d5502299"`
+     - `data_source_url: "collection://201b1882-308d-4524-8a86-6672d5502299"` (validated ID)
      - `query: [opportunity name provided by user]`
      - `limit: 5` (get up to 5 results to show user options)
 3. **Handle search results:**
@@ -60,14 +64,14 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
    - **If user confirms (Y):**
      - Log to `.claude/memory/opportunity-search-log.jsonl`:
        ```json
-       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": "[e.g., 'Single result' or 'User chose option 2 of 3']"}
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "database_id": "collection://201b1882-308d-4524-8a86-6672d5502299", "database_validated": true, "result_count": N, "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": "[e.g., 'Single result' or 'User chose option 2 of 3']"}
        ```
      - Proceed to step 5 (fetch)
    - **If user rejects (N):**
      - Ask: "Please provide the exact Notion URL for the opportunity you want to advance."
      - Log to `.claude/memory/opportunity-search-log.jsonl`:
        ```json
-       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": false, "correction_needed": true, "correct_url": "[user_provided_url]", "notes": "User rejected search result - [total_results] results shown"}
+       {"timestamp": "YYYY-MM-DDTHH:MM:SS", "query": "[user_search_term]", "database_id": "collection://201b1882-308d-4524-8a86-6672d5502299", "database_validated": true, "result_count": N, "returned_name": "[result_name]", "returned_url": "[result_url]", "user_validated": false, "correction_needed": true, "correct_url": "[user_provided_url]", "notes": "User rejected search result - [total_results] results shown"}
        ```
      - Use user-provided URL for fetch
 5. Fetch opportunity page (full content + properties):

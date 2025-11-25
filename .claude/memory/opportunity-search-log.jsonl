@@ -1,4 +1,6 @@
 # Opportunity Search Validation Log
-# Schema: {"timestamp": "ISO-8601", "query": "string", "returned_name": "string", "returned_url": "string", "user_validated": boolean, "correction_needed": boolean, "correct_url": "string|null", "notes": "string|null"}
+# Schema: {"timestamp": "ISO-8601", "query": "string", "database_id": "string", "database_validated": boolean, "result_count": number, "returned_name": "string", "returned_url": "string", "user_validated": boolean, "correction_needed": boolean, "correct_url": "string|null", "notes": "string|null"}
 # Purpose: Track search accuracy to improve opportunity identification over time
 # Format: One JSON object per line (JSONL), append-only
+# New fields (added 2025-11-25): database_id, database_validated, result_count
+{"timestamp": "2025-11-25T08:51:04", "query": "Ferreira Costa", "returned_name": "Ferreira Costa", "returned_url": "https://www.notion.so/Ferreira-Costa-14fea0ddd35d8008bd37c7b9a6fa1be8", "user_validated": true, "correction_needed": false, "correct_url": null, "notes": "Single result - user confirmed"}

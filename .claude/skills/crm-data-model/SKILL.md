@@ -150,3 +150,62 @@ properties: {
   "AI Advancement Recommendation": "..."
 }
 ```
+
+---
+
+## Opportunity Search Protocol
+
+**Purpose:** Ensure agents use validated database ID and handle multiple results correctly.
+
+### Search Rules
+
+1. **Always use validated database ID:**
+   - Correct: `collection://201b1882-308d-4524-8a86-6672d5502299`
+   - NEVER use: shortcuts, aliases, or unvalidated IDs
+
+2. **Multiple results handling:**
+   - If search returns multiple matches → show ALL to user for selection
+   - NEVER auto-select first result
+   - Display: Name, Biz Funnel stage, Status for each
+   - Wait for user to choose by number
+
+3. **Search validation:**
+   - Before searching: verify database ID is correct
+   - After searching: log result count
+   - If 0 results: clear error message with guidance
+   - If 1 result: proceed (but confirm with user)
+   - If 2+ results: trigger selection flow
+
+### Example Flow
+
+```
+SENSE Phase:
+1. User provides: "opportunity ABC"
+2. Agent validates: database ID = collection://201b1882-308d-4524-8a86-6672d5502299
+3. Agent searches with notion-search
+4. Results: 3 opportunities found
+5. Agent displays:
+   "Found 3 opportunities matching 'ABC':
+   1. ABC Corp - Oferta - In Progress
+   2. ABC Industries - Proposta - Waiting Feedback
+   3. ABC Holdings - Credibilidade - Scheduled
+
+   Which opportunity? (enter number)"
+6. User selects: 2
+7. Agent proceeds with ABC Industries
+```
+
+### Memory Logging
+
+After search, log to `.claude/memory/opportunity-search-log.jsonl`:
+```json
+{
+  "timestamp": "ISO-8601",
+  "search_term": "user input",
+  "database_id": "collection://...",
+  "database_validated": true,
+  "result_count": 3,
+  "selected_index": 2,
+  "selected_name": "ABC Industries"
+}
+```
