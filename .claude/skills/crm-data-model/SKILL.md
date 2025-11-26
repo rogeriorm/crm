@@ -209,3 +209,41 @@ After search, log to `.claude/memory/opportunity-search-log.jsonl`:
   "selected_name": "ABC Industries"
 }
 ```
+
+### Post-Search Relevance Filtering
+
+**Purpose:** Reduce false positives from Notion AI search by filtering results based on name relevance.
+
+**When to Apply:**
+- After MCP notion-search returns results
+- Before showing results to user
+- Before logging result_count in memory
+
+**Algorithm:**
+1. Normalize query: lowercase, split into words (min 3 chars each)
+2. Normalize each result name: lowercase
+3. For each result, check if name contains ANY query word
+4. Keep only results with at least one word match
+5. If all results filtered out: treat as "0 results found"
+
+**Example:**
+- Query: "ferreira costa"
+- Words: ["ferreira", "costa"]
+- Result: "Ferreira Costa - Savio" → KEEP (contains both words)
+- Result: "Aida Stellantis" → FILTER OUT (contains neither)
+
+**Edge Cases:**
+- Single-word query: "sustentec" → keep if name contains "sustentec"
+- Multi-word query: "Siemens Agentes" → keep if contains "siemens" OR "agentes"
+- Minimum word length: 3 characters (skip "de", "e", "da", etc.)
+- Missing Nome property: skip that result (defensive)
+
+**After filtering:**
+- 0 results → Clear error: "No opportunities found for '[query]'"
+- 1 result → Proceed to validation
+- 2+ results → Display filtered list for user selection
+
+**Memory Impact:**
+- result_count logs filtered count (more accurate than raw MCP count)
+- No schema changes to memory log
+- Filtering is transparent to memory system

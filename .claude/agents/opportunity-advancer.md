@@ -35,10 +35,21 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
      - `data_source_url: "collection://201b1882-308d-4524-8a86-6672d5502299"` (validated ID)
      - `query: [opportunity name provided by user]`
      - `limit: 5` (get up to 5 results to show user options)
-3. **Handle search results:**
-   - **If 0 results:** Ask user to verify name or provide exact Notion URL
-   - **If 1 result:** Proceed to step 4 (validation) with this result
-   - **If 2+ results:** Display all results and ask user to choose:
+3. **Filter search results by relevance:**
+   - Apply Post-Search Relevance Filtering (per crm-data-model skill):
+     - Normalize query: lowercase, split into words (min 3 chars each)
+     - For each MCP result:
+       - Get opportunity name from properties (Nome Oportunidade field)
+       - Normalize name: lowercase
+       - Check if name contains ANY query word
+       - Keep only matching results
+   - **If 0 filtered results:**
+     - Message: "No opportunities found for '[query]'. Please verify the name or try a different search term."
+     - Ask user for corrected name or exact Notion URL
+   - **If 1 filtered result:**
+     - Proceed to step 4 (validation) with this result
+   - **If 2+ filtered results:**
+     - Display filtered results (hide irrelevant ones):
      ```
      Found multiple opportunities matching "[query]":
 
