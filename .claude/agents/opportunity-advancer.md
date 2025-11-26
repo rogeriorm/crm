@@ -186,6 +186,7 @@ Multi-source strategic analysis across 2-3 recent interactions:
 - "Waiting Feedback" status ONLY if truly waiting on client
 - Next Action must be specific enough to know what to do
 - Date properties use format: `date:NAction Due:start` and `date:NAction Due:is_datetime: 0`
+- **DATA-ONLY ANALYSIS:** Work EXCLUSIVELY with Notion database content (fetched via MCP). NEVER add context, descriptions, or information from general knowledge. If database field is empty, state "Field X is empty" - do NOT infer or assume information. Quote specific database fields when describing opportunities. Treat company/entity names as opaque strings - do NOT describe what they do based on general knowledge. See Principle #21 in PRINCIPLES.md.
 
 ## Output Format
 ```markdown

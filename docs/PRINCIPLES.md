@@ -2,8 +2,8 @@
 
 This document captures core principles and learnings from building AI-assisted CRM workflow automation using Claude Code + Notion via MCP.
 
-**Last Updated:** 2025-11-22
-**Source Sessions:** 2025-11-21, 2025-11-22
+**Last Updated:** 2025-11-26
+**Source Sessions:** 2025-11-21, 2025-11-22, 2025-11-26
 
 ---
 
@@ -489,6 +489,155 @@ Fail fast in SENSE phase with clear user guidance.
 
 ---
 
+## Data Consistency & Governance
+
+### 21. Data-Only Analysis - Never Enrich with External Knowledge
+
+**Rule:** Agents must work EXCLUSIVELY with data present in Notion database (via MCP fetch). NEVER add context, descriptions, or information from model's general knowledge.
+
+**Why this matters:**
+- External knowledge may be incorrect (proven by Clarius hallucination case)
+- Breaks user trust ("it overstated comments that do not exist in my database")
+- Violates "Always Validate Against Source" principle
+- Creates false confidence in analysis
+
+**Examples of VIOLATIONS:**
+- ❌ User mentions "Clarius" → Agent adds "Clarius is an ultrasound company"
+- ❌ Opportunity field shows "Microsoft" → Agent adds "a technology giant based in..."
+- ❌ Update Log says "waiting contract" → Agent adds "typical for enterprise sales cycles of 6-12 months"
+- ❌ Next Action: "Present panel using cases Clarius, Bayer, Indorama" → Agent describes what each company does
+
+**Examples of CORRECT behavior:**
+- ✅ User mentions "Clarius" → Agent treats it as opaque string from user's context
+- ✅ Opportunity shows "Microsoft" → Agent uses name exactly as appears, no elaboration
+- ✅ Update Log says "waiting contract" → Agent analyzes timeline/patterns in THIS opportunity's data only
+- ✅ Next Action lists companies → Agent acknowledges the action without describing companies
+
+**Allowed additions:**
+- ✅ Patterns detected ACROSS multiple interactions in Notion (e.g., "pricing mentioned in 3 interactions")
+- ✅ Inferences FROM the data (e.g., "no response for 21 days suggests stalling")
+- ✅ Business rule applications FROM skill definitions (e.g., "pricing discussion signals Oferta stage")
+
+**Not allowed additions:**
+- ❌ Industry context not in database
+- ❌ Company descriptions not in database
+- ❌ Generic business knowledge not tied to specific Notion data
+- ❌ Assumptions about entities based on their names
+
+**How to handle missing information:**
+- State explicitly: "Field X is empty" or "No information about Y in database"
+- Do NOT infer, assume, or fill gaps with general knowledge
+- Suggest user adds information to Notion if needed
+
+### 22. Post-Processing Validation Pattern
+
+**Rule:** When external systems (MCP, APIs) return data, apply relevance filtering before presentation to user.
+
+**Why:** External search systems (like Notion AI search) may return semantically related but irrelevant results.
+
+**Pattern:**
+1. Receive raw results from external system
+2. Apply relevance filter (e.g., substring matching, schema validation)
+3. Log both raw count and filtered count for auditability
+4. Present only filtered results to user
+5. Clear error message if all results filtered out
+
+**Example (already implemented):**
+```
+Opportunity Search Protocol:
+- MCP returns 8 results for "sustentec"
+- Post-filter: Keep only results where name contains "sustentec"
+- Result: 1 relevant opportunity (7 filtered out)
+- Memory log: "8 raw results filtered to 1"
+```
+
+**When to apply:**
+- MCP notion-search results
+- External API responses
+- Any AI-powered search/retrieval
+- Data imports from external sources
+
+### 23. Multi-Layer Validation Strategy
+
+**Rule:** Apply validation at three checkpoints in agent workflow.
+
+**Three Validation Layers:**
+
+**LAYER 1: INPUT VALIDATION** (SENSE phase)
+- Schema validation (field names, types exist?)
+- Required data check (necessary fields populated?)
+- Error handling (clear messages for missing data)
+- Tool availability check (MCP tools accessible?)
+
+**LAYER 2: PROCESS VALIDATION** (PLAN phase)
+- Business rules enforcement (Biz Funnel transitions valid?)
+- Data source validation (information comes from Notion?)
+- Multi-source correlation (patterns across interactions?)
+- Anti-hallucination checks (no external knowledge added?)
+
+**LAYER 3: OUTPUT VALIDATION** (before ACT phase)
+- Consistency checks (field co-dependencies respected?)
+- Quality checks (format compliance, length constraints?)
+- Completeness checks (all required fields generated?)
+- Governance checks (audit trail, user approval required?)
+
+**Example workflow:**
+```
+INPUT → [Validate schema] → PROCESS → [Validate business rules] →
+OUTPUT → [Validate consistency] → PRESENT → User Approval → ACT
+```
+
+### 24. Progressive Trust Model
+
+**Rule:** Trust level varies based on agent history, data criticality, and user context. Adjust validation strictness accordingly.
+
+**Trust Matrix:**
+
+| Criticality | Confidence | Strategy |
+|-------------|-----------|----------|
+| High + Low | Strict validation + user approval | Biz Funnel changes |
+| High + High | Moderate validation + warning flags | Next Action Date calc |
+| Low + Low | Light validation + user can override | Formatting suggestions |
+| Low + High | Trust-first + monitor for issues | Sorting, metadata |
+
+**Progressive approach:**
+- **Phase 0:** User validates everything manually
+- **Phase 1:** System validates obvious errors, user validates strategic decisions
+- **Phase 2:** System validates majority, user validates critical changes
+- **Phase 3:** System auto-validates with confidence scores, user audits periodically
+
+**Current state:** Phase 0/1 transition (opportunity-advancer operational)
+
+### 25. Validation as Documentation
+
+**Rule:** Validation logic IS documentation of business rules, data quality expectations, and system boundaries.
+
+**Principle:**
+- Every validation rule documents an expectation
+- Failed validations reveal edge cases
+- Validation evolution shows system maturity
+- Validation logs = living specification
+
+**Examples:**
+```
+Validation: "Status = 'Waiting Feedback' requires NAction Due to exist"
+→ Documents: Status and NAction Due are co-dependent
+
+Validation: "NAction Due must be >= today"
+→ Documents: No backdated action dates allowed
+
+Validation: "Update Log entry ≤ 10 words"
+→ Documents: Log entries must be concise
+```
+
+**Benefits:**
+- New developers understand constraints by reading validation code
+- Business rules stay synchronized with implementation
+- Validation failures guide debugging
+- Documentation never drifts from reality
+
+---
+
 ## Quick Reference Checklist
 
 When building a new agent:
@@ -517,6 +666,14 @@ When documenting:
 ---
 
 ## Version History
+
+**v1.1** (2025-11-26)
+- Added "Data Consistency & Governance" section
+- Documented Principles 21-25
+- Addresses hallucination prevention (Clarius case)
+- Formalizes post-processing validation pattern
+- Establishes multi-layer validation strategy
+- Implements: Issue #6 (Phase 1 Foundation)
 
 **v1.0** (2025-11-22)
 - Initial principles document
