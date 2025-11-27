@@ -1,17 +1,125 @@
 # Agentic Workflow Map
 
-**Version:** 1.0
-**Last Updated:** 2025-11-23
+**Version:** 1.1
+**Last Updated:** 2025-11-27
 **Status:** Building incrementally as needed
+
+**Changelog:**
+- v1.1 (2025-11-27): Added Agent Governance Layer as third perspective
+- v1.0 (2025-11-23): Initial version with Business and Technical flows
 
 ## Overview
 
-This document maps the current and planned agentic workflow architecture for the CRM project. Two complementary perspectives are presented:
+This document maps the current and planned agentic workflow architecture for the CRM project. Three complementary perspectives are presented:
 
 1. **Business Operations Flow** - Customer-facing agents that drive revenue
 2. **Technical Enablement Flow** - Meta-agents that improve the system itself
+3. **Agent Governance Layer** - Cross-cutting concern for audit, control, validation, and learning
 
-Both flows embody the principle: **Works → Fast → Validated → Iterated**
+All flows embody the principle: **Works → Fast → Validated → Iterated**
+
+---
+
+## Agent Governance Layer (Cross-Cutting)
+
+### Architecture Principle
+
+Governance is **NOT** a separate agent or standalone service. It's a **cross-cutting concern** that weaves through all agent operations at every phase of SPAR.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   AGENT GOVERNANCE LAYER                        │
+│         (Cross-cutting: Audit, Control, Validation)            │
+└─────────────────────────────────────────────────────────────────┘
+                               │
+        ┌──────────────────────┼──────────────────┬──────────────┐
+        │                      │                  │              │
+        ↓                      ↓                  ↓              ↓
+   SENSE Phase            PLAN Phase         ACT Phase     REFLECT Phase
+        │                      │                  │              │
+   ┌────┴─────┐          ┌─────┴──────┐    ┌─────┴──────┐  ┌────┴─────┐
+   │ Schema   │          │ Business   │    │ Rate       │  │ Failure  │
+   │ Validate │          │ Rule       │    │ Limiting   │  │ Registry │
+   │          │          │ Validate   │    │ Audit Log  │  │ Rollback │
+   └──────────┘          └────────────┘    │ User Gate  │  │ Learning │
+                                           └────────────┘  └──────────┘
+```
+
+### Progressive Evolution Model
+
+Governance grows with system complexity:
+
+```
+Phase 0: Lightweight Practices (1 agent)
+  ├─ Human approval = governance gate
+  ├─ Update Log = audit trail
+  ├─ CLAUDE.md = schema/rules
+  └─ Manual rollback (screenshots)
+
+Phase 1: Shared Conventions (3+ agents)
+  ├─ /docs/governance/ folder
+  ├─ audit-format.md
+  ├─ failure-log.md
+  ├─ operational-limits.md
+  └─ schema-reference.json
+
+Phase 2: Reusable Subsystem (5+ agents)
+  ├─ /.claude/governance/ code
+  ├─ audit-logger.js
+  ├─ rate-limiter.js
+  ├─ schema-validator.js
+  └─ rollback-manager.js
+
+Phase 3: Dedicated Service (Orchestration)
+  ├─ /services/governance/ APIs
+  ├─ audit-service
+  ├─ policy-engine (auto-approve rules)
+  ├─ monitoring-dashboard
+  └─ rollback-service
+```
+
+### Current State: Phase 0
+
+**Status:** ✅ Operational (sufficient for current scale)
+
+**Implementation:**
+- Human approval gate (all writes require confirmation)
+- Update Log field (implicit audit in Notion)
+- CLAUDE.md constraints (documented rules)
+- SPAR framework (built-in validation)
+- 🚧 NEXT: Create `docs/governance/failure-log.md`
+
+**Key Principle:** "Earn Your Infrastructure"
+- Don't build ahead of evidence
+- Governance emerges from complexity
+- Human approval IS the governance layer at this scale
+
+### Signals to Advance Phases
+
+| Signal | Threshold | Action |
+|--------|-----------|--------|
+| Same failure 3x | Pattern emerged | Build targeted prevention (#9 schema validation) |
+| Recovery > 1 hour | Stakes too high | Build rollback (#8) |
+| Approval fatigue | >20 approvals/session | Build auto-approve (#13) |
+| Cost surprise | Bill > 2x expected | Build monitoring (#15) |
+| 3+ agents operational | Shared conventions needed | Move to Phase 1 |
+| 5+ agents operational | Volume justifies infra | Move to Phase 2 |
+
+### GitHub Issues Mapped to Governance
+
+**Tier 1: Core Practices (Now)**
+- #10: Failure case registry → `docs/governance/failure-log.md` (15 min)
+
+**Tier 2: Targeted Solutions (When Pattern Emerges)**
+- #9: Schema validation → Build after 3rd schema error
+- #12: Rate limiting → Build after first runaway operation
+- #13: Auto-approval → Build after approval bottleneck
+
+**Tier 3: Infrastructure (At Scale)**
+- #8: Audit log → Build when debugging becomes hard
+- #15: Monitoring → Build when costs become significant
+- #14: Staging DB → Build when production testing too risky
+- #11: Key rotation → Implement as periodic process
 
 ---
 
@@ -184,7 +292,48 @@ Both flows embody the principle: **Works → Fast → Validated → Iterated**
 
 ---
 
-## Interaction Map: Business ↔ Technical
+## Three-Layer Integration Map
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│                COMPLETE SYSTEM ARCHITECTURE                    │
+└────────────────────────────────────────────────────────────────┘
+
+                    ┌─────────────────────────────┐
+                    │  AGENT GOVERNANCE LAYER     │
+                    │  (Cross-cutting concern)    │
+                    └──────────────┬──────────────┘
+                                   │
+              ┌────────────────────┼────────────────────┐
+              │                    │                    │
+              ↓                    ↓                    ↓
+    ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐
+    │   BUSINESS      │  │   TECHNICAL     │  │   GOVERNANCE    │
+    │   OPERATIONS    │  │   ENABLEMENT    │  │   CONTROLS      │
+    │                 │  │                 │  │                 │
+    │ opportunity-    │  │ cs-agent-       │  │ • Audit logs    │
+    │ advancer ✅     │  │ validator ✅    │  │ • Rate limits   │
+    │                 │  │                 │  │ • Schema checks │
+    │ pipeline-digest │  │ ai-enablement-  │  │ • Rollback      │
+    │ 🚧 planned      │  │ reviewer ✅     │  │ • User gates    │
+    │                 │  │                 │  │ • Failure log   │
+    │ meeting-prep    │  │ business-       │  │                 │
+    │ 🚧 planned      │  │ architect ✅    │  │ Phase 0: ✅     │
+    │                 │  │                 │  │ Phase 1: 🚧     │
+    │ follow-up       │  │ system-         │  │ Phase 2: 🔮     │
+    │ 🚧 planned      │  │ implementer ✅  │  │ Phase 3: 🔮     │
+    └─────────────────┘  └─────────────────┘  └─────────────────┘
+              │                    │                    │
+              └────────────────────┴────────────────────┘
+                                   │
+                                   ↓
+                    ┌─────────────────────────────┐
+                    │     NOTION DATA LAYER       │
+                    │  (Single source of truth)   │
+                    └─────────────────────────────┘
+```
+
+## Interaction Map: Business ↔ Technical ↔ Governance
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
@@ -202,7 +351,6 @@ Business Operations → Technical Enablement:
 • User feedback on recommendations → ai-enablement-reviewer
   "Low accuracy in Biz Funnel detection? Refine logic"
 
-
 Technical Enablement → Business Operations:
 ─────────────────────────────────────────
 • business-architect identifies workflow gap → new agent spec
@@ -213,6 +361,28 @@ Technical Enablement → Business Operations:
 
 • Performance analysis shows bottleneck → refactoring
   "Multi-fetch slows down? Batch operations"
+
+Governance → Both Flows:
+────────────────────────
+• Failure log shows pattern → Trigger schema validation (#9)
+  "3x same field error → Add validation before update"
+
+• Approval fatigue detected → Trigger auto-approve (#13)
+  ">20 approvals in session → Selective auto-approval needed"
+
+• Recovery cost high → Trigger rollback (#8)
+  "1 hour to fix mistake → Build rollback capability"
+
+Both Flows → Governance:
+────────────────────────
+• opportunity-advancer mistake → Log to failure registry
+  "Wrong Biz Funnel stage → Document pattern for prevention"
+
+• Multiple agents operational → Advance governance phase
+  "3 agents running → Move from Phase 0 to Phase 1"
+
+• High-value operation → Increase governance rigor
+  "Critical update → Require 2-step approval"
 ```
 
 ---

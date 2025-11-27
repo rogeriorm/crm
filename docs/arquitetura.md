@@ -183,8 +183,96 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 | **MCP Server** | @notionhq/mcp-server-notion | Latest |
 | **Automation Layer (Notion)** | My Notion AI | Native |
 | **Automation Layer (Code)** | Claude Code | Latest |
+| **Governance Layer** | Progressive (Phase 0→3) | Evolving |
 | **Runtime** | Node.js | >= 18.x |
 | **Version Control** | Git | Any |
+
+### Agent Governance Layer (Cross-Cutting)
+
+**Status:** Phase 0 (Lightweight Practices)
+**Architecture:** Cross-cutting concern that intersects SPAR at multiple points
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              AGENT GOVERNANCE LAYER                         │
+│  (Cross-cutting: Audit, Control, Validation, Learning)     │
+└─────────────────────────────────────────────────────────────┘
+                           │
+        ┌──────────────────┼──────────────────┐
+        │                  │                  │
+        ↓                  ↓                  ↓
+   SENSE Phase       PLAN Phase         ACT Phase        REFLECT Phase
+        │                  │                  │                  │
+   Schema            Business Rule      Rate Limiting      Failure Registry
+   Validation        Validation         Audit Logging      Rollback Capability
+                                        User Approval      Learning
+```
+
+**Current Implementation (Phase 0):**
+- ✅ Human approval gate (all writes require confirmation)
+- ✅ Update Log field (implicit audit trail in Notion)
+- ✅ CLAUDE.md constraints (documented rules)
+- ✅ SPAR framework (built-in validation phases)
+- 🚧 Failure log (`docs/governance/failure-log.md`) - NEXT
+
+**Progressive Evolution:**
+| Phase | Complexity | When | What |
+|-------|-----------|------|------|
+| **Phase 0** | Lightweight practices | Now (1 agent) | Human approval + docs |
+| **Phase 1** | Shared conventions | 3+ agents | `/docs/governance/` docs |
+| **Phase 2** | Reusable subsystem | 5+ agents | `/.claude/governance/` code |
+| **Phase 3** | Dedicated service | Orchestration | `/services/governance/` APIs |
+
+**Governance Capabilities by Phase:**
+
+```
+Phase 0 (NOW):
+  ├─ Audit: Existing Update Log field
+  ├─ Rate Limiting: Human approval gate
+  ├─ Schema Validation: CLAUDE.md documentation
+  ├─ Rollback: Manual (screenshot before changes)
+  ├─ Usage Monitoring: Claude Code token display
+  └─ Failure Learning: docs/governance/failure-log.md
+
+Phase 1 (3+ agents):
+  ├─ Audit: Standardized format conventions
+  ├─ Rate Limiting: Documented operational limits
+  ├─ Schema Validation: schema-reference.json
+  ├─ Rollback: Still manual (infrequent need)
+  ├─ Usage Monitoring: Weekly manual review
+  └─ Failure Learning: Pattern extraction from log
+
+Phase 2 (5+ agents):
+  ├─ Audit: audit-logger.js (centralized)
+  ├─ Rate Limiting: rate-limiter.js (shared logic)
+  ├─ Schema Validation: schema-validator.js (pre-update checks)
+  ├─ Rollback: rollback-manager.js (undo capability)
+  ├─ Usage Monitoring: usage-tracker.js (automated)
+  └─ Failure Learning: pattern-analyzer.js
+
+Phase 3 (Complex orchestration):
+  ├─ Audit: audit-service (centralized log service)
+  ├─ Rate Limiting: policy-engine (auto-approve rules)
+  ├─ Schema Validation: validation-service (real-time)
+  ├─ Rollback: rollback-service (transaction-like)
+  ├─ Usage Monitoring: monitoring-dashboard (real-time)
+  └─ Failure Learning: ml-pattern-detection
+```
+
+**Key Principle:** "Earn Your Infrastructure"
+- Don't build ahead of need
+- Evidence-driven progression (failure patterns, volume, stakes)
+- Governance emerges from complexity, not before it
+
+**Signals to Advance Phase:**
+| Signal | Threshold | Action |
+|--------|-----------|--------|
+| Same failure 3x | Pattern emerged | Build targeted prevention |
+| Recovery > 1 hour | Stakes too high | Build rollback capability |
+| Approval fatigue | >20 approvals/session | Build selective auto-approve |
+| Cost surprise | Bill > 2x expected | Build usage monitoring |
+| 3+ agents operational | Shared needs | Move to Phase 1 |
+| 5+ agents operational | Volume justifies | Move to Phase 2 |
 
 ### Security & Permissions
 
@@ -192,6 +280,7 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 - **Notion Integration:** Read/Write access to specific databases only
 - **MCP Auto-approval:** Read operations only (search, fetch)
 - **Human-in-the-loop:** All write operations in Claude Code require explicit user approval
+- **Governance Posture:** Phase 0 (human approval IS the governance layer)
 
 ### Current Limitations
 
@@ -199,7 +288,7 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 2. **No Orchestration:** Each agent operates independently
 3. **Manual Sync:** Notion AI e Claude Code agents não sincronizam automaticamente
 4. **No Testing Framework:** Validação é manual
-5. **No Logging:** Sem histórico de execuções ou auditing
+5. **Lightweight Governance:** Phase 0 practices (sufficient for current scale)
 
 ### Next Evolution: Agent Mirrors
 
