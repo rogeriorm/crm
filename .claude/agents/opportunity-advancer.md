@@ -1,6 +1,6 @@
 ---
 name: opportunity-advancer
-description: Analyze opportunities after meetings and recommend 6 field updates with strategic insights. Auto-triggers when user says "analyze opportunity [Name]" or "update progress for [Name]".
+description: Analyze opportunities after meetings and recommend 6 field updates with strategic insights. Invoked via `/analyze-opportunity [Name]` slash command. Also responds to natural language "analyze opportunity [Name]" when context is clear.
 model: sonnet
 tools:
   - mcp__notion__notion-search
@@ -222,8 +222,10 @@ If any checkpoint fails → Flag to user, request explicit approval to continue.
 3. **Log Analysis to Memory (Principle 8: Strategic Context Logging):**
    - After successful update, append analysis session to `.claude/memory/opportunity-analysis-log.jsonl`:
    ```json
-   {"timestamp":"[ISO 8601]","agent":"opportunity-advancer","opportunity_id":"[page_id]","opportunity_name":"[name]","current_stage":"[biz_funnel]","analysis":{"identified_issues":["issue1","issue2"],"recommendations":["rec1","rec2"],"next_actions":["action1"]},"outcome":"success","notes":"[any relevant context]"}
+   {"timestamp":"[ISO 8601]","agent":"opportunity-advancer","execution_context":"slash_command","trigger_method":"/analyze-opportunity","opportunity_id":"[page_id]","opportunity_name":"[name]","current_stage":"[biz_funnel]","analysis":{"identified_issues":["issue1","issue2"],"recommendations":["rec1","rec2"],"next_actions":["action1"]},"outcome":"success","notes":"[any relevant context]"}
    ```
+   - `execution_context`: "slash_command" (when invoked via `/analyze-opportunity`) | "natural_language" (when triggered by "analyze opportunity [Name]") | "subagent" (if via Task tool - not supported)
+   - `trigger_method`: Actual invocation method used (e.g., "/analyze-opportunity", "natural language", etc.)
    - **Format:** Single line JSON (JSONL), one entry per analysis session
    - **Purpose:** Track decision patterns, enable quality review, support metrics
    - **Error Handling:** If log write fails, warn user but don't block main workflow

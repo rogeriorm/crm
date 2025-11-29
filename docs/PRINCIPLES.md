@@ -767,6 +767,71 @@ Priority: High
 - Derived calculations don't need links
 - But if mentioning SPECIFIC record → MUST have link
 
+### 27. Slash Commands for Deterministic Agent Triggers
+
+**Rule:** Use slash commands to provide deterministic, reliable triggers for agent workflows that require MCP tools.
+
+**Pattern:**
+- Slash command (`.claude/commands/[name].md`) contains agent workflow prompt
+- Executes in main conversation context (MCP tools available)
+- Parameters passed via `{{ARG}}` placeholder
+- User invokes with `/command-name [param]`
+
+**Why slash commands:**
+- ✅ Deterministic trigger (no LLM interpretation variability)
+- ✅ Main context execution (MCP access guaranteed)
+- ✅ Discoverable (listed in /help)
+- ✅ Parameterizable (can pass opportunity name, etc.)
+
+**Examples:**
+
+✅ **Slash Command (Deterministic):**
+```
+User: /analyze-opportunity Ferreira Costa
+Claude: [Executes workflow in main context with MCP]
+Result: Reliable 6-field analysis every time
+```
+
+✅ **Natural Language (Best-effort):**
+```
+User: "analyze opportunity Musashi"
+Claude: [May recognize and apply workflow]
+Result: Works when LLM interprets correctly
+```
+
+❌ **Subagent Invocation (Broken):**
+```
+User: "using opportunity advancer, analyze X"
+Claude: [Isolated context - no MCP]
+Result: "MCP tool not available" error
+```
+
+**Implementation Pattern:**
+
+1. Create `.claude/commands/[command-name].md` as **thin wrapper**
+2. Content = instruction to apply agent spec with `{{ARG}}` parameter
+3. Example: `"Apply the opportunity-advancer agent to analyze '{{ARG}}'"`
+4. Agent spec (`.claude/agents/[agent-name].md`) contains full SPAR workflow
+5. **Zero logic duplication** - slash command delegates to agent
+
+**Advantages:**
+- Single source of truth (agent spec)
+- Slash command is stable (changes go in agent spec)
+- Deterministic trigger + maintainable logic
+
+**Architecture Reality:**
+- MCP tools are conversation-level resources
+- Subagents invoked via Task tool execute in isolated contexts
+- Isolated contexts do NOT inherit MCP server connections
+- Natural language "auto-trigger" depends on LLM interpretation (unreliable)
+- Slash commands execute in main context → MCP access guaranteed
+
+**When to use:**
+- Agent requires MCP tools (Notion, databases, external APIs)
+- Deterministic trigger required (vs best-effort natural language)
+- Workflow needs to be discoverable and documented
+- Parameters need to be passed explicitly
+
 ---
 
 ## Quick Reference Checklist
@@ -797,6 +862,13 @@ When documenting:
 ---
 
 ## Version History
+
+**v1.3** (2025-11-29)
+- Added Principle 27: Slash Commands for Deterministic Agent Triggers
+- Addresses auto-trigger inconsistency and MCP isolation in subagents
+- Formalizes slash command pattern for reliable agent invocation
+- Implements: Issue #18 (Agent Execution Context)
+- Impact: Agents with MCP dependencies now use `/command` pattern
 
 **v1.2** (2025-11-29)
 - Added Principle 26: Data Traceability - Always Link to Source

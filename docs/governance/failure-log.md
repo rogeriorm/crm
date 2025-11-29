@@ -47,6 +47,41 @@ Track these thresholds:
 
 ## Log
 
+### 2025-11-29 Auto-Trigger Inconsistency & MCP Isolation
+
+**What Happened:**
+Auto-trigger worked for Musashi opportunity (2025-11-29 10:07:32Z) but failed for Ferreira Costa (same day). When user manually invoked agent via "using opportunity advancer", execution failed with "MCP tool not available" error.
+
+**Root Cause:**
+1. **Auto-trigger is unreliable:** Agent `description` field is LLM hint, not deterministic hook. LLM interpretation varies across sessions.
+2. **MCP tools unavailable in subagents:** When agent invoked via Task tool, executes in isolated context that does NOT inherit MCP server connections from main conversation.
+3. **Architectural constraint:** MCP tools are conversation-level resources. Subagent isolation prevents access.
+
+**Impact:**
+- Severity: Medium
+- Data corrupted: No
+- User intervention required: Yes (confusion about why same command works/fails)
+- Time to recover: 15 minutes (investigation + workaround)
+
+**Prevention:**
+- Created `/analyze-opportunity [Name]` slash command for deterministic trigger
+- Slash command executes in main context (MCP access guaranteed)
+- Updated agent description to reference slash command as primary invocation method
+- Added Principle 27 (Slash Commands for Deterministic Triggers) to PRINCIPLES.md
+- Updated memory log schema to track `execution_context` and `trigger_method`
+- Natural language "analyze opportunity [Name]" still works as best-effort fallback
+
+**Solution Implemented:**
+`.claude/commands/analyze-opportunity.md` created as thin wrapper that delegates to opportunity-advancer agent spec. Zero logic duplication, deterministic trigger, discoverable via `/help`.
+
+**Related Issue:**
+#18 - Implement slash command for deterministic agent trigger
+
+**Patterns:**
+First discovery of MCP isolation in subagents. Established pattern: slash commands for MCP-dependent agents, thin wrapper pattern for zero duplication.
+
+---
+
 ### 2025-11-29 opportunity-advancer - Vague recommendations violating Principle 5
 
 **What Happened:**
