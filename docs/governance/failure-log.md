@@ -47,7 +47,45 @@ Track these thresholds:
 
 ## Log
 
-(Entries added here, newest first)
+### 2025-11-29 opportunity-advancer - Vague recommendations violating Principle 5
+
+**What Happened:**
+Agent produced vague, non-actionable recommendations:
+- "Follow up" without specific action or date
+- Stage advancement without business justification
+- No concrete next steps for user to execute
+
+**Root Cause:**
+**Principle Violations:**
+1. **Principle 5 (Be Explicit, Never Vague)** - Recommendations lacked specificity
+2. **Principle 8 (Strategic Context Logging)** - No memory of analysis patterns
+3. **Principle 14 (User Control First)** - No validation checkpoint in REFLECT
+
+**Technical Gap:** No structured memory to track recommendation quality or improve over time.
+
+**Impact:**
+- Severity: Medium
+- Data corrupted: No (recommendations were guidance only)
+- User intervention required: Yes (user had to manually refine recommendations)
+- Time to recover: 5-10 minutes per opportunity
+
+**Prevention:**
+- Added `.claude/memory/opportunity-analysis-log.jsonl` for structured memory
+- Enhanced PLAN phase with explicit recommendation patterns (good vs bad examples)
+- Added SENSE phase MCP tool availability validation
+- Added REFLECT phase Principle 14 checkpoint (user control validation)
+- Added ACT phase memory logging after successful updates
+- Updated PRINCIPLES.md with enforcement notes for Principles 4, 5, 8, 14
+
+**Related Issue:**
+#16 - Implement structured memory and principle enforcement
+
+**Patterns:**
+First occurrence - establishing baseline for recommendation quality tracking via memory log.
+
+---
+
+(Additional entries added here, newest first)
 
 ---
 

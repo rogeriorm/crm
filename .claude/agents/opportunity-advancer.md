@@ -28,6 +28,18 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
 ## Process
 
 **SENSE (Load Context):**
+
+**0. Validate Tool Availability (Principle 4: Error Handling):**
+- Check if `mcp__notion__notion-fetch` is available in current context
+- If missing:
+  ```
+  ❌ CRITICAL: MCP tool 'notion-fetch' not available in this context.
+
+  This agent requires Notion MCP integration to function.
+  Please ensure MCP is properly configured and restart the session.
+  ```
+  **STOP EXECUTION** - Do not proceed without required tools.
+
 1. Reference crm-data-model for database schema and rules
 2. Search Oportunidades by name (following Opportunity Search Protocol):
    - **Validate database ID first:** `collection://201b1882-308d-4524-8a86-6672d5502299`
@@ -103,6 +115,20 @@ If skill context is not loaded, reference `.claude/skills/crm-data-model/SKILL.m
    - Use first available content type from each interaction
 
 **PLAN (Analyze & Generate):**
+
+**Principle 5 Enforcement (Be Explicit, Never Vague):**
+Every recommendation must include:
+- **What:** Specific action (not "follow up")
+- **When:** Concrete date or trigger condition
+- **Why:** Business justification tied to opportunity state
+
+**Good vs Bad Examples:**
+- ❌ BAD: "Follow up" (vague, no date, no context)
+- ✅ GOOD: "Agendar reunião de alinhamento para 05/12/2024 após aprovação do budget"
+
+- ❌ BAD: "Avançar para próximo estágio" (which stage? when? why?)
+- ✅ GOOD: "Avançar para Negociação após reunião confirmar alinhamento de proposta"
+
 Multi-source strategic analysis across 2-3 recent interactions:
 
 1. **Analyze interactions for patterns** (per skill's Interaction Analysis Strategy):
@@ -169,12 +195,29 @@ Multi-source strategic analysis across 2-3 recent interactions:
    ```
 
 **REFLECT (Validate):**
+
+**Principle 14 Checkpoint (User Control First):**
+- [ ] Did user see complete before/after for ALL modifications?
+- [ ] Did user explicitly approve EVERY change?
+- [ ] If user rejected: did agent stop and ask for guidance?
+- [ ] Were any assumptions made about user intent?
+
+If any checkpoint fails → Flag to user, request explicit approval to continue.
+
 1. Check API response: did update succeed?
    - If error: show error message to user
    - If date property error: verify format is `date:NAction Due:start` and `date:NAction Due:is_datetime: 0`
 2. Sanity check: do updated values make sense?
    - Update Log has new entry at top
    - Biz Funnel didn't skip stages
+3. **Log Analysis to Memory (Principle 8: Strategic Context Logging):**
+   - After successful update, append analysis session to `.claude/memory/opportunity-analysis-log.jsonl`:
+   ```json
+   {"timestamp":"[ISO 8601]","agent":"opportunity-advancer","opportunity_id":"[page_id]","opportunity_name":"[name]","current_stage":"[biz_funnel]","analysis":{"identified_issues":["issue1","issue2"],"recommendations":["rec1","rec2"],"next_actions":["action1"]},"outcome":"success","notes":"[any relevant context]"}
+   ```
+   - **Format:** Single line JSON (JSONL), one entry per analysis session
+   - **Purpose:** Track decision patterns, enable quality review, support metrics
+   - **Error Handling:** If log write fails, warn user but don't block main workflow
    - Next Action is specific and actionable
 3. Consider: should this trigger another agent? (e.g., stage change → meeting prep)
 4. Log which interactions were analyzed (for debugging)

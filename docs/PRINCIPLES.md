@@ -108,6 +108,14 @@ Every external dependency needs failure cases:
 - Validate format errors (especially dates)
 - Show error messages to user
 
+**Enforcement (Added 2025-11-29):**
+- **SENSE Phase Requirement:** All agents MUST validate external dependencies (MCP tools, APIs) before use
+- **Failure Mode:** Agent should fail fast with clear message if required tools unavailable
+- **Anti-Pattern:** Proceeding with execution assuming tools exist, leading to cryptic errors
+- **Example:** opportunity-advancer checks for `mcp__notion__notion-fetch` availability before attempting data load
+
+See: `docs/governance/failure-log.md` - 2025-11-29 failure entry
+
 ### 5. Be Explicit, Never Vague
 
 **Bad (Vague):**
@@ -126,6 +134,18 @@ Load interactions (2-3 most recent):
 ```
 
 **Rule:** If it requires sorting, filtering, or prioritization, specify exactly how.
+
+**Enforcement (Added 2025-11-29):**
+- **PLAN Phase Requirement:** All recommendations MUST include What/When/Why
+  - **What:** Specific action (not "follow up")
+  - **When:** Concrete date or trigger condition
+  - **Why:** Business justification tied to current state
+- **Anti-Pattern:** Generic advice that leaves user unsure what to do next
+- **Examples:**
+  - ❌ BAD: "Follow up" (vague, no date, no context)
+  - ✅ GOOD: "Agendar reunião de alinhamento para 05/12/2024 após aprovação do budget"
+
+See: `docs/governance/failure-log.md` - 2025-11-29 failure entry
 
 ### 6. String Operations Need Exact Specs
 
@@ -170,6 +190,15 @@ APPEND using exact concatenation:
 - No-value updates
 
 **Format:** `DD/MM: [max 10 words]` - newest first, always APPEND
+
+**Enforcement (Added 2025-11-29):**
+- **REFLECT Phase Requirement:** After successful execution, agents SHOULD log analysis to `.claude/memory/[agent-name]-log.jsonl`
+- **Format:** JSONL (one JSON object per line) for machine-readable memory
+- **Purpose:** Enable pattern detection, quality review, continuous improvement
+- **Error Handling:** If logging fails, warn user but don't block main workflow
+- **Example:** See `.claude/memory/opportunity-analysis-log.jsonl` for schema
+
+See: `docs/governance/failure-log.md` - 2025-11-29 failure entry
 
 ---
 
@@ -267,6 +296,17 @@ Test in layers:
 - Use for complex multi-step tasks
 - Show incremental progress
 - Ask before implementing fixes
+
+**Enforcement (Added 2025-11-29):**
+- **REFLECT Phase Requirement:** Agents MUST validate user control before completion
+- **Checkpoint Questions:**
+  - Did user see complete before/after for ALL modifications?
+  - Did user explicitly approve EVERY change?
+  - If user rejected: did agent stop and ask for guidance?
+  - Were any assumptions made about user intent?
+- **Anti-Pattern:** Auto-approving changes, proceeding without explicit confirmation
+
+See: `docs/governance/failure-log.md` - 2025-11-29 failure entry
 
 ### 15. Token Efficiency Matters
 
