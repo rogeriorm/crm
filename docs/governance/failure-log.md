@@ -47,6 +47,39 @@ Track these thresholds:
 
 ## Log
 
+### 2025-11-29 Slash Command Syntax Error - Incorrect Argument Template
+
+**What Happened:**
+Implemented `/analyze-opportunity` slash command but used incorrect argument syntax `{{ARG}}` instead of `$ARGUMENTS`. Command not recognized by Claude Code, returned "Unknown slash command" error.
+
+**Root Cause:**
+Unfamiliarity with Claude Code slash command syntax specification. Assumed template syntax similar to other systems (e.g., Jinja2, Mustache) but Claude Code uses shell-style variable syntax `$ARGUMENTS` or `$1`, `$2`, etc.
+
+**Impact:**
+- Severity: Medium
+- Data corrupted: No
+- User intervention required: Yes (command non-functional)
+- Time to recover: 5 minutes (SAC agent identified issue, quick fix)
+
+**Prevention:**
+- Corrected to use `$ARGUMENTS` per official documentation
+- Added frontmatter with `description` and `argument-hint` for better UX
+- SAC agent effectively diagnosed root cause through spec validation
+- Established pattern: always reference official tooling docs for syntax
+
+**Solution Implemented:**
+- Replaced `{{ARG}}` with `$ARGUMENTS` throughout command file
+- Added YAML frontmatter for discoverability
+- Tested with `/help` to verify registration
+
+**Related Issue:**
+#18 - Implement slash command for deterministic agent trigger
+
+**Patterns:**
+First use of slash commands in project. Lesson learned: Claude Code uses shell-style syntax, not template engine syntax. SAC agent validation against official docs caught this quickly.
+
+---
+
 ### 2025-11-29 Auto-Trigger Inconsistency & MCP Isolation
 
 **What Happened:**
