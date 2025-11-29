@@ -172,12 +172,16 @@ Multi-source strategic analysis across 2-3 recent interactions:
    - Can be empty if no significant patterns detected
 
 **ACT (Present & Update):**
-1. Show proposed 6 fields in structured markdown format (see Output Format below)
-2. Include current values for comparison
-3. If Biz Funnel changed, explain reasoning in 1 sentence
-4. Highlight AI Advancement Recommendation prominently
-5. Wait for user approval: [Y]es / [N]o / [E]dit
-6. If approved: update Notion page via `mcp__notion__notion-update-page`:
+1. **CRITICAL (Principle 26: Data Traceability):** Display Notion URL prominently in output header
+   - Extract URL from SENSE phase fetch response (`url` field)
+   - Place in blockquote format after opportunity name (see Output Format below)
+   - User MUST be able to click directly to Notion record for validation
+2. Show proposed 6 fields in structured markdown format (see Output Format below)
+3. Include current values for comparison
+4. If Biz Funnel changed, explain reasoning in 1 sentence
+5. Highlight AI Advancement Recommendation prominently
+6. Wait for user approval: [Y]es / [N]o / [E]dit
+7. If approved: update Notion page via `mcp__notion__notion-update-page`:
    ```json
    {
      "page_id": "{page_id}",
@@ -201,6 +205,11 @@ Multi-source strategic analysis across 2-3 recent interactions:
 - [ ] Did user explicitly approve EVERY change?
 - [ ] If user rejected: did agent stop and ask for guidance?
 - [ ] Were any assumptions made about user intent?
+
+**Principle 26 Checkpoint (Data Traceability):**
+- [ ] Did output include Notion URL for user validation?
+- [ ] Is URL clickable and placed prominently at top of output?
+- [ ] Did URL come from MCP fetch response (not manually constructed)?
 
 If any checkpoint fails → Flag to user, request explicit approval to continue.
 

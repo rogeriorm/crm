@@ -2,8 +2,8 @@
 
 This document captures core principles and learnings from building AI-assisted CRM workflow automation using Claude Code + Notion via MCP.
 
-**Last Updated:** 2025-11-26
-**Source Sessions:** 2025-11-21, 2025-11-22, 2025-11-26
+**Last Updated:** 2025-11-29
+**Source Sessions:** 2025-11-21, 2025-11-22, 2025-11-26, 2025-11-29
 
 ---
 
@@ -676,6 +676,97 @@ Validation: "Update Log entry ≤ 10 words"
 - Validation failures guide debugging
 - Documentation never drifts from reality
 
+### 26. Data Traceability - Always Link to Source
+
+**Rule:** Every agent output that presents data MUST include direct, clickable links to the source records in Notion.
+
+**Why this matters:**
+- Users need to quickly validate they're reviewing the correct record
+- Enables instant context switching (agent analysis → Notion original)
+- Prevents catastrophic errors (updating wrong opportunity/contact/company)
+- Supports auditability and governance requirements
+- Respects "User Control First" principle
+
+**Examples of CORRECT behavior:**
+
+✅ **Opportunity Analysis:**
+```markdown
+# Opportunity Update: Musashi - 600k
+
+> **Notion URL:** https://www.notion.so/3cf758d2976b4e8ab788c498bbb854e5
+
+**Current Stage:** Credibilidade
+...
+```
+
+✅ **Pipeline Digest:**
+```markdown
+## High Priority Opportunities
+
+1. **Musashi - 600k** (Credibilidade)
+   - URL: https://www.notion.so/3cf758d2976b4e8ab788c498bbb854e5
+   - Status: Overdue by 3 days
+   ...
+```
+
+✅ **Contact Summary:**
+```markdown
+# Contact: Francisco Silva
+
+> **Notion URL:** https://www.notion.so/contact-xyz
+
+**Associated Opportunities:**
+- [Musashi - 600k](https://www.notion.so/opp-123) - Credibilidade
+...
+```
+
+**Examples of VIOLATIONS:**
+
+❌ **Missing Link:**
+```markdown
+Analysis: Ferreira Costa - Sávio e Juarez Guimarães
+
+Current State:
+- Stage: 4. Contato
+...
+```
+→ User cannot validate which record is being analyzed
+
+❌ **Name Only:**
+```markdown
+Opportunity: Musashi - 600k
+Priority: High
+...
+```
+→ No way to navigate to original record
+
+**Implementation Requirements:**
+
+1. **SENSE Phase:** Capture exact Notion URL when fetching data
+   - Store in variable for later use
+   - Validate URL format before proceeding
+   - URL comes from MCP fetch response `url` field
+
+2. **ACT Phase:** Display URL in output header
+   - Use markdown link format or blockquote format (see examples above)
+   - Place prominently at top of output (before analysis)
+   - Use exact URL from fetch operation (not reconstructed)
+
+3. **Multiple Records:** Each record gets its own link
+   - Pipeline views: link per opportunity
+   - Relation lists: link per related item
+   - Never show unlinkable references
+
+**Error Handling:**
+- If URL not available in fetch response: STOP execution and log error
+- URL must come from MCP fetch response (don't construct manually)
+- Validate URL format: starts with `https://www.notion.so/`
+
+**Exceptions:**
+- Aggregate metrics (e.g., "15 opportunities") don't need links
+- Derived calculations don't need links
+- But if mentioning SPECIFIC record → MUST have link
+
 ---
 
 ## Quick Reference Checklist
@@ -706,6 +797,13 @@ When documenting:
 ---
 
 ## Version History
+
+**v1.2** (2025-11-29)
+- Added Principle 26: Data Traceability - Always Link to Source
+- Addresses critical gap in agent outputs (missing Notion URLs)
+- Formalizes requirement for clickable links in all data presentations
+- Implements: Issue #17 (Data Traceability)
+- Impact: All agents must now include source record links for auditability
 
 **v1.1** (2025-11-26)
 - Added "Data Consistency & Governance" section
