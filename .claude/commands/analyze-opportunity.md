@@ -1,4 +1,9 @@
-Apply the opportunity-advancer agent to analyze the opportunity named "{{ARG}}".
+---
+description: "Analyze opportunity using SPAR workflow (Sense→Plan→Act→Reflect)"
+argument-hint: "<opportunity-name>"
+---
+
+Apply the opportunity-advancer agent to analyze the opportunity named "$ARGUMENTS".
 
 Follow the complete SPAR workflow defined in `.claude/agents/opportunity-advancer.md`:
 - SENSE: Search, validate, fetch opportunity + load interactions
@@ -7,4 +12,4 @@ Follow the complete SPAR workflow defined in `.claude/agents/opportunity-advance
 - REFLECT: Log to memory with execution_context: "slash_command"
 
 **Agent spec:** `.claude/agents/opportunity-advancer.md`
-**Opportunity name:** {{ARG}}
+**Opportunity name:** $ARGUMENTS
