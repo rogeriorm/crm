@@ -62,6 +62,8 @@ cat .env | grep NOTION_API_KEY  # Should exist
 
 ## Essential Reading
 
-**Core Principles:** `docs/PRINCIPLES.md` - 20 principles learned from building this system
-**Phase 0 Implementation:** `docs/phase-0-lean-implementation.md`
-**Detailed Specs:** See `docs/`
+**Quick Start (Users):** `docs/QUICK-START.md` - Get started in <5 minutes
+**Core Principles:** `docs/PRINCIPLES.md` - 27 principles learned from building this system
+**Troubleshooting:** `docs/TROUBLESHOOTING.md` - Common issues and solutions
+**Documentation Index:** `docs/README.md` - Find any documentation quickly
+**Phase 0 Implementation:** `docs/implementation/phase-0.md`

@@ -54,11 +54,13 @@ The environment variable syntax `${NOTION_API_KEY}` is supported across all plat
 
 ### Usage
 
-Once configured, Claude Code can:
-- Search your Notion workspace
-- Fetch pages and databases
-- Create and update content
-- Access all connected Notion data sources
+Once configured, you can use AI agents to automate CRM workflows:
+- Analyze opportunities after client meetings
+- Get recommendations for pipeline updates
+- Track patterns across interactions
+- Maintain governance with human validation gates
+
+**📖 See [docs/QUICK-START.md](docs/QUICK-START.md) for complete usage guide (< 5 minutes)**
 
 ### Troubleshooting
 
@@ -76,3 +78,12 @@ Once configured, Claude Code can:
 - Never commit `.env` to version control (it's in `.gitignore`)
 - Keep your Notion API key secure
 - Share `.env.example` instead, not `.env`
+
+---
+
+## Documentation
+
+- **[Quick Start Guide](docs/QUICK-START.md)** - Get started in < 5 minutes
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Documentation Index](docs/README.md)** - Complete documentation map
+- **[Principles](docs/PRINCIPLES.md)** - Design philosophy (27 core principles)
