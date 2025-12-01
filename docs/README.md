@@ -27,22 +27,22 @@ Welcome to the CRM workflow automation documentation. This guide helps you find 
 | Document | Purpose | Audience | Time |
 |----------|---------|----------|------|
 | **[PRINCIPLES.md](PRINCIPLES.md)** | 27 principles from real implementation | All | 30 min |
-| **[architecture/overview.md](arquitetura.md)** | System architecture, data flow | Developers | 20 min |
-| **[architecture/agent-workflow-map.md](agentic-workflow-map.md)** | Agent ecosystem and integration patterns | Developers | 15 min |
+| **[architecture/overview.md](architecture/overview.md)** | System architecture, data flow | Developers | 20 min |
+| **[architecture/agent-workflow-map.md](architecture/agent-workflow-map.md)** | Agent ecosystem and integration patterns | Developers | 15 min |
 
 ### Implementation
 
 | Document | Purpose | Audience | Time |
 |----------|---------|----------|------|
-| **[implementation/phase-0.md](phase-0-lean-implementation.md)** | Current phase guide | Developers | 15 min |
-| **[implementation/roadmap.md](cronograma.md)** | Phases 0-3 timeline | Product | 10 min |
+| **[implementation/phase-0.md](implementation/phase-0.md)** | Current phase guide | Developers | 15 min |
+| **[implementation/roadmap.md](implementation/roadmap.md)** | Phases 0-3 timeline | Product | 10 min |
 
 ### Agent Specifications
 
 | Document | Purpose | Audience | Time |
 |----------|---------|----------|------|
-| **[agents/opportunity-advancer-spec.md](2.2-opportunity-advancer.md)** | Business requirements spec | Product | 30 min |
-| **[agents/pipeline-digest-spec.md](3.0-weekly-pipeline.md)** | Future agent spec (Phase 1) | Product | 20 min |
+| **[agents/opportunity-advancer-spec.md](agents/opportunity-advancer-spec.md)** | Business requirements spec | Product | 30 min |
+| **[agents/pipeline-digest-spec.md](agents/pipeline-digest-spec.md)** | Future agent spec (Phase 1) | Product | 20 min |
 | **[../.claude/agents/README.md](../.claude/agents/README.md)** | Agent usage guide | Users | 10 min |
 
 ### Governance
@@ -86,9 +86,9 @@ Welcome to the CRM workflow automation documentation. This guide helps you find 
 **Start here:**
 1. [../README.md](../README.md) - Environment setup
 2. [PRINCIPLES.md](PRINCIPLES.md) - **CRITICAL** - Design philosophy
-3. [architecture/overview.md](arquitetura.md) - System architecture
-4. [architecture/agent-workflow-map.md](agentic-workflow-map.md) - Agent relationships
-5. [implementation/phase-0.md](phase-0-lean-implementation.md) - Current phase
+3. [architecture/overview.md](architecture/overview.md) - System architecture
+4. [architecture/agent-workflow-map.md](architecture/agent-workflow-map.md) - Agent relationships
+5. [implementation/phase-0.md](implementation/phase-0.md) - Current phase
 
 **When modifying system:**
 1. Read relevant agent spec in `/docs/agents/`
@@ -99,7 +99,7 @@ Welcome to the CRM workflow automation documentation. This guide helps you find 
 
 **Deep dives:**
 - [archive/2025-11-planning/](archive/2025-11-planning/) - Historical decisions
-- [agents/opportunity-advancer-spec.md](2.2-opportunity-advancer.md) - Complete spec example
+- [agents/opportunity-advancer-spec.md](agents/opportunity-advancer-spec.md) - Complete spec example
 
 ---
 
@@ -118,7 +118,7 @@ Welcome to the CRM workflow automation documentation. This guide helps you find 
 - User feedback: Trigger cs-agent-validator
 
 **Reference:**
-- [architecture/overview.md](arquitetura.md) - System context
+- [architecture/overview.md](architecture/overview.md) - System context
 - [governance/failure-log.md](governance/failure-log.md) - Avoid known pitfalls
 
 ---
@@ -260,10 +260,10 @@ Choose your path:
 → Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 
 **🏗️ Building or modifying?**
-→ Read [PRINCIPLES.md](PRINCIPLES.md) first, then [architecture/overview.md](arquitetura.md)
+→ Read [PRINCIPLES.md](PRINCIPLES.md) first, then [architecture/overview.md](architecture/overview.md)
 
 **📖 Understanding the approach?**
-→ Start with [PRINCIPLES.md](PRINCIPLES.md), then [architecture/agent-workflow-map.md](agentic-workflow-map.md)
+→ Start with [PRINCIPLES.md](PRINCIPLES.md), then [architecture/agent-workflow-map.md](architecture/agent-workflow-map.md)
 
 ---
 

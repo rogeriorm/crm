@@ -200,7 +200,7 @@ or
 
 1. **SENSE:** Loads the request and understands current system state
    - Reads GitHub issue or clarifies description
-   - Scans PRINCIPLES.md, CLAUDE.md, agentic-workflow-map.md
+   - Scans PRINCIPLES.md, CLAUDE.md, architecture/agent-workflow-map.md
    - Maps dependencies and affected files
    - Assesses risk level (low/medium/high)
 

@@ -23,7 +23,7 @@ Diferente do roadmap original (que priorizava Weekly Pipeline Digest), a nova es
 
 ### Entregas
 
-1. ✅ **Especificação técnica completa** (`docs/2.2-opportunity-advancer.md`)
+1. ✅ **Especificação técnica completa** (`docs/agents/opportunity-advancer-spec.md`)
    - Input/output specification
    - Lógica de processamento detalhada
    - Casos de teste
@@ -74,7 +74,7 @@ Diferente do roadmap original (que priorizava Weekly Pipeline Digest), a nova es
 
 ### Entregas
 
-1. ✅ **Especificação técnica** (`docs/3.0-weekly-pipeline.md`) - já existe!
+1. ✅ **Especificação técnica** (`docs/agents/pipeline-digest-spec.md`) - já existe!
 
 2. 🔜 **Implementação do agente**
    - Query oportunidades ativas (via MCP search)
@@ -308,7 +308,7 @@ Fase 4: Orchestration                            [===========] (Semanas 11-16)
 
 ### Esta Semana (Fase 0)
 
-1. ✅ **Especificar Agent Mirror 2.2** → `docs/2.2-opportunity-advancer.md`
+1. ✅ **Especificar Agent Mirror 2.2** → `docs/agents/opportunity-advancer-spec.md`
 2. 🚧 **Implementar lógica core** → Query, load, parse, analyze
 3. 🚧 **Testar com 3-5 oportunidades reais**
 4. 🚧 **Documentar como executar**

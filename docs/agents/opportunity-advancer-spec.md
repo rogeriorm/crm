@@ -598,8 +598,8 @@ View in Notion: {opportunity_url}
 
 - **Process Documentation:** Notion `/Processos de Negócio - CRM Workflow - 2.2 - Avanço`
 - **AI Configuration:** Notion `/My Notion AI`
-- **Technical Architecture:** `docs/arquitetura.md`
-- **Roadmap:** `docs/cronograma.md`
+- **Technical Architecture:** `docs/architecture/overview.md`
+- **Roadmap:** `docs/implementation/roadmap.md`
 
 ---
 

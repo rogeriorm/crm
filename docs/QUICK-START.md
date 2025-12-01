@@ -264,15 +264,15 @@ Controls:
 
 **Architecture & Design:**
 - [PRINCIPLES.md](PRINCIPLES.md) - 27 principles learned from building this system
-- [architecture/overview.md](arquitetura.md) - System architecture and data flow
-- [architecture/agent-workflow-map.md](agentic-workflow-map.md) - Agent ecosystem map
+- [architecture/overview.md](architecture/overview.md) - System architecture and data flow
+- [architecture/agent-workflow-map.md](architecture/agent-workflow-map.md) - Agent ecosystem map
 
 **Implementation:**
-- [implementation/phase-0.md](phase-0-lean-implementation.md) - Current phase guide
-- [implementation/roadmap.md](cronograma.md) - Phases 0-3 timeline
+- [implementation/phase-0.md](implementation/phase-0.md) - Current phase guide
+- [implementation/roadmap.md](implementation/roadmap.md) - Phases 0-3 timeline
 
 **Agents:**
-- [agents/opportunity-advancer-spec.md](2.2-opportunity-advancer.md) - Complete spec
+- [agents/opportunity-advancer-spec.md](agents/opportunity-advancer-spec.md) - Complete spec
 - [.claude/agents/README.md](../.claude/agents/README.md) - Agent usage guide
 
 **Governance:**
@@ -288,7 +288,7 @@ Controls:
 
 **For errors:** Check [TROUBLESHOOTING.md](TROUBLESHOOTING.md)
 **For concepts:** Read [PRINCIPLES.md](PRINCIPLES.md)
-**For architecture:** See [architecture/overview.md](arquitetura.md)
+**For architecture:** See [architecture/overview.md](architecture/overview.md)
 **For feedback:** Provide feedback naturally - cs-agent-validator auto-triggers
 
 **Time to first success:** < 5 minutes with this guide 🚀

@@ -691,7 +691,7 @@ When designing a new technical enablement agent:
 ## References
 
 - **PRINCIPLES.md** - 20 core principles guiding development
-- **phase-0-lean-implementation.md** - Current implementation phase
+- **implementation/phase-0.md** - Current implementation phase
 - **spar-architecture-future-reference.md** - SPAR framework details
 - **.claude/agents/** - Agent configurations
 - **.claude/skills/** - Shared skill library

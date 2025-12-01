@@ -27,7 +27,7 @@ This agent receives validated improvement requests and implements them systemati
 **IMPORTANT:** This agent expects familiarity with:
 - `docs/PRINCIPLES.md` - 20 core development principles
 - `docs/CLAUDE.md` - Project constraints and requirements
-- `docs/agentic-workflow-map.md` - System architecture and flows
+- `docs/architecture/agent-workflow-map.md` - System architecture and flows
 - Current codebase state (agents, skills, docs)
 
 ## Process
@@ -42,7 +42,7 @@ This agent receives validated improvement requests and implements them systemati
 **2. Understand Current System:**
 - Read `docs/PRINCIPLES.md` (all 20 principles)
 - Read `docs/CLAUDE.md` (project constraints)
-- Read `docs/agentic-workflow-map.md` (system architecture)
+- Read `docs/architecture/agent-workflow-map.md` (system architecture)
 - Scan affected files:
   - Agents: `.claude/agents/*.md`
   - Skills: `.claude/skills/*/SKILL.md`
@@ -84,8 +84,8 @@ Create comprehensive checklist:
 
 ### Documentation Updates
 - [ ] `docs/CLAUDE.md` - [what to update]
-- [ ] `docs/agentic-workflow-map.md` - [what to update]
-- [ ] `docs/phase-0-lean-implementation.md` - [what to update]
+- [ ] `docs/architecture/agent-workflow-map.md` - [what to update]
+- [ ] `docs/implementation/phase-0.md` - [what to update]
 
 ### Testing/Validation
 - [ ] Test with [specific scenario]
