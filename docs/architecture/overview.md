@@ -2,6 +2,8 @@
 
 ### Visão Geral (Híbrida)
 
+**Visual Overview:** See [diagrams/system-overview.mmd](diagrams/system-overview.mmd) for three-layer architecture diagram.
+
 A arquitetura atual implementa uma **abordagem híbrida** onde cada agente existe em duas camadas:
 
 ```
@@ -98,6 +100,9 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 #### 4. MCP Protocol Integration
 **Responsabilidade:** Comunicação entre Claude Code e Notion
 
+**Visual:** See [diagrams/mcp-integration.mmd](diagrams/mcp-integration.mmd) for protocol flow diagram.
+**Reference:** See [mcp-tools-reference.md](mcp-tools-reference.md) for complete tool documentation.
+
 **Configuration:** `.mcp.json`
 ```json
 {
@@ -123,6 +128,8 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 - `mcp__notion__notion-update-database`
 
 ### Data Flow: Process 2.2 (Current Implementation)
+
+**Visual:** See [diagrams/data-flow.mmd](diagrams/data-flow.mmd) and [diagrams/agent-workflow.mmd](diagrams/agent-workflow.mmd) for complete SPAR workflow.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -191,6 +198,8 @@ A arquitetura atual implementa uma **abordagem híbrida** onde cada agente exist
 
 **Status:** Phase 0 (Lightweight Practices)
 **Architecture:** Cross-cutting concern that intersects SPAR at multiple points
+
+**Visual:** See [diagrams/governance-progression.mmd](diagrams/governance-progression.mmd) for Phase 0-3 evolution.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

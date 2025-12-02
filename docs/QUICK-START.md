@@ -12,6 +12,8 @@ AI-assisted CRM workflow automation using Claude Code + Notion via MCP:
 - **Track patterns** across interactions
 - **Maintain governance** with human validation gates
 
+**Visual Overview:** See [architecture/diagrams/system-overview.mmd](architecture/diagrams/system-overview.mmd) for system architecture.
+
 ---
 
 ## Quick Invocation Reference
@@ -60,6 +62,8 @@ AI-assisted CRM workflow automation using Claude Code + Notion via MCP:
 7. Agent updates Notion only after approval
 
 **Time:** ~30-60 seconds
+
+**Visual Workflow:** See [architecture/diagrams/agent-workflow.mmd](architecture/diagrams/agent-workflow.mmd) for SPAR sequence diagram.
 
 **Example:**
 ```

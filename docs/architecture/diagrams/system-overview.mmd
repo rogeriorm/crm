@@ -1,0 +1,84 @@
+---
+status: Current
+version: 1.0
+last_updated: 2025-12-01
+language: en
+audience: all
+diagram_type: system-architecture
+---
+
+```mermaid
+graph TB
+    subgraph "User Interaction Layer"
+        User[User]
+        CLI[Claude Code CLI]
+    end
+
+    subgraph "Agent Layer - Three-Tier Architecture"
+        subgraph "Business Operations"
+            OppAdv[opportunity-advancer<br/>Process 2.2 Mirror]
+        end
+
+        subgraph "Technical Enablement"
+            SysImpl[system-implementer<br/>Execute Changes]
+            AIReview[ai-enablement-reviewer<br/>Optimize Agents]
+            BizArch[business-architect<br/>Design Processes]
+            CSVal[cs-agent-validator<br/>Validate Feedback]
+        end
+
+        subgraph "Governance Controls"
+            Human[Human Approval Gates]
+            FailLog[Failure Log]
+            Memory[Memory Logging JSONL]
+        end
+    end
+
+    subgraph "Integration Layer"
+        MCP[MCP Protocol]
+        Skills[Skills<br/>crm-data-model]
+    end
+
+    subgraph "Data Layer"
+        Notion[(Notion Workspace)]
+        OppDB[(Oportunidades DB<br/>11-stage Biz Funnel)]
+        Notes[(Anotações<br/>Meeting Notes)]
+    end
+
+    User -->|"Slash Commands<br/>/analyze-opportunity"| CLI
+    User -->|"Natural Language<br/>analyze opportunity X"| CLI
+
+    CLI -->|Invoke| OppAdv
+    CLI -->|Invoke| SysImpl
+
+    OppAdv -->|Load Schema| Skills
+    OppAdv -->|Search & Fetch| MCP
+    OppAdv -->|Propose Updates| Human
+    Human -->|Approve/Reject| OppAdv
+    OppAdv -->|Update| MCP
+    OppAdv -->|Log Execution| Memory
+
+    MCP -->|Read/Write| Notion
+    Notion --> OppDB
+    Notion --> Notes
+
+    SysImpl -.->|Optimize| OppAdv
+    AIReview -.->|Review| OppAdv
+    BizArch -.->|Design| OppAdv
+    CSVal -.->|Issues| FailLog
+
+    FailLog -.->|Inform| SysImpl
+
+    style OppAdv fill:#4CAF50
+    style Human fill:#FF9800
+    style MCP fill:#2196F3
+    style Notion fill:#000000,color:#fff
+```
+
+**Diagram:** Three-layer architecture showing User → Agents → MCP → Notion data flow.
+
+**Key Components:**
+- **Business Operations:** opportunity-advancer (operational)
+- **Technical Enablement:** 4 meta-agents for system improvement
+- **Governance:** Human approval gates, failure log, memory logging
+- **Integration:** MCP protocol + Skills for business rules
+- **Data:** Notion workspace with Oportunidades and Anotações

@@ -1,0 +1,74 @@
+---
+status: Current
+version: 1.0
+last_updated: 2025-12-01
+language: en
+audience: all
+diagram_type: sequence-diagram
+---
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI as Claude Code
+    participant Agent as opportunity-advancer
+    participant Skill as crm-data-model
+    participant MCP as MCP Protocol
+    participant Notion as Notion API
+
+    User->>CLI: /analyze-opportunity "Musashi - 600k"
+
+    rect rgb(200, 230, 255)
+        Note over Agent: SENSE Phase
+        CLI->>Agent: Invoke with opportunity name
+        Agent->>Agent: Validate MCP tools available
+        Agent->>MCP: Search Oportunidades database
+        MCP->>Notion: Query by name
+        Notion-->>MCP: Return results
+        MCP-->>Agent: Search results
+        Agent->>User: Show result + URL<br/>Is this correct? (Y/N)
+        User-->>Agent: Y
+        Agent->>MCP: Fetch opportunity page
+        MCP->>Notion: Get page with properties
+        Notion-->>MCP: Opportunity data
+        MCP-->>Agent: Opportunity loaded
+        Agent->>MCP: Fetch 2-3 recent Anotações
+        MCP->>Notion: Get meeting notes
+        Notion-->>MCP: Meeting data
+        MCP-->>Agent: Interactions loaded
+    end
+
+    rect rgb(255, 250, 200)
+        Note over Agent: PLAN Phase
+        Agent->>Skill: Load Biz Funnel stages
+        Skill-->>Agent: 11 stages + advancement signals
+        Agent->>Agent: Analyze patterns across meetings
+        Agent->>Agent: Apply advancement signals
+        Agent->>Agent: Generate 6 field recommendations
+    end
+
+    rect rgb(200, 255, 200)
+        Note over Agent: ACT Phase
+        Agent->>User: Show proposed updates:<br/>1. Update Log<br/>2. Next Action<br/>3. NAction Due<br/>4. Biz Funnel<br/>5. Status<br/>6. AI Recommendation<br/><br/>Apply? (Y/N/E)
+        User-->>Agent: Y
+        Agent->>MCP: Update 6 fields
+        MCP->>Notion: Write to opportunity
+        Notion-->>MCP: Success
+        MCP-->>Agent: Update confirmed
+    end
+
+    rect rgb(255, 230, 230)
+        Note over Agent: REFLECT Phase
+        Agent->>Agent: Validate API response
+        Agent->>Agent: Log to memory (JSONL)
+        Agent->>User: ✅ Updated successfully!<br/>Notion URL: [link]
+    end
+```
+
+**Diagram:** SPAR (Sense → Plan → Act → Reflect) workflow for opportunity-advancer agent.
+
+**Phases:**
+- **SENSE (Blue):** Search, validate, fetch opportunity + interactions
+- **PLAN (Yellow):** Analyze patterns, apply business rules, generate recommendations
+- **ACT (Green):** Show proposed updates, get approval, update Notion
+- **REFLECT (Pink):** Validate response, log execution, confirm to user

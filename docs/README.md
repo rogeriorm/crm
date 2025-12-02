@@ -29,6 +29,8 @@ Welcome to the CRM workflow automation documentation. This guide helps you find 
 | **[PRINCIPLES.md](PRINCIPLES.md)** | 27 principles from real implementation | All | 30 min |
 | **[architecture/overview.md](architecture/overview.md)** | System architecture, data flow | Developers | 20 min |
 | **[architecture/agent-workflow-map.md](architecture/agent-workflow-map.md)** | Agent ecosystem and integration patterns | Developers | 15 min |
+| **[architecture/diagrams/](architecture/diagrams/)** | Mermaid diagrams (system, workflow, data flow, MCP, governance) | All | 5 min |
+| **[architecture/mcp-tools-reference.md](architecture/mcp-tools-reference.md)** | Complete MCP Notion tools reference | Developers | 15 min |
 
 ### Implementation
 

@@ -1,0 +1,90 @@
+---
+status: Current
+version: 1.0
+last_updated: 2025-12-01
+language: en
+audience: all
+diagram_type: integration-architecture
+---
+
+```mermaid
+graph TB
+    subgraph "Claude Code Environment"
+        Env[.env<br/>NOTION_API_KEY]
+        MCPConfig[.mcp.json<br/>Server Configuration]
+        Settings[.claude/settings.local.json<br/>Permissions]
+    end
+
+    subgraph "MCP Server Layer"
+        MCPServer[@notionhq/mcp-server-notion<br/>npx auto-loaded]
+        Auth[Authentication<br/>API Key Validation]
+    end
+
+    subgraph "MCP Tools - Read Only (Auto-Approved)"
+        SearchTool[mcp__notion__notion-search<br/>Semantic search workspace]
+        FetchTool[mcp__notion__notion-fetch<br/>Get page/database by URL/ID]
+    end
+
+    subgraph "MCP Tools - Write (Require Approval)"
+        UpdatePage[mcp__notion__notion-update-page<br/>Modify page properties/content]
+        CreatePage[mcp__notion__notion-create-pages<br/>Add new pages]
+        MovePage[mcp__notion__notion-move-pages<br/>Change parent]
+    end
+
+    subgraph "Notion API"
+        NotionAPI[Notion REST API<br/>api.notion.com]
+        RateLimit[Rate Limiting<br/>3 req/sec]
+    end
+
+    subgraph "Notion Workspace"
+        Pages[(Pages)]
+        Databases[(Databases)]
+        Relations[(Relations)]
+    end
+
+    Env -->|Provides| Auth
+    MCPConfig -->|Configures| MCPServer
+    Settings -->|Controls| SearchTool
+    Settings -->|Controls| FetchTool
+    Settings -->|Requires Approval| UpdatePage
+
+    MCPServer --> Auth
+    Auth -->|Valid| SearchTool
+    Auth -->|Valid| FetchTool
+    Auth -->|Valid| UpdatePage
+    Auth -->|Valid| CreatePage
+    Auth -->|Valid| MovePage
+
+    SearchTool --> NotionAPI
+    FetchTool --> NotionAPI
+    UpdatePage --> NotionAPI
+    CreatePage --> NotionAPI
+    MovePage --> NotionAPI
+
+    NotionAPI -->|Rate Limited| Pages
+    NotionAPI -->|Rate Limited| Databases
+    NotionAPI -->|Rate Limited| Relations
+
+    RateLimit -.->|3 req/sec| NotionAPI
+
+    style SearchTool fill:#4CAF50
+    style FetchTool fill:#4CAF50
+    style UpdatePage fill:#FF9800
+    style Auth fill:#2196F3
+    style NotionAPI fill:#000,color:#fff
+```
+
+**Diagram:** MCP (Model Context Protocol) integration architecture.
+
+**Components:**
+- **Environment:** API key, MCP config, permissions
+- **MCP Server:** Auto-loaded @notionhq/mcp-server-notion via npx
+- **Read Tools:** Auto-approved (search, fetch)
+- **Write Tools:** Require user approval (update, create, move)
+- **Notion API:** REST API with rate limiting (3 req/sec)
+
+**Security:**
+- API key stored in .env (not committed)
+- Permissions controlled in settings.local.json
+- Read operations auto-approved
+- Write operations require user confirmation

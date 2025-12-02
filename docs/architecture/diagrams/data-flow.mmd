@@ -1,0 +1,94 @@
+---
+status: Current
+version: 1.0
+last_updated: 2025-12-01
+language: en
+audience: all
+diagram_type: data-flow
+---
+
+```mermaid
+flowchart LR
+    subgraph "User Entry Points"
+        SC[Slash Command<br/>/analyze-opportunity]
+        NL[Natural Language<br/>analyze opportunity X]
+    end
+
+    subgraph "Invocation Layer"
+        CMD[Command File<br/>.claude/commands/]
+        Main[Main Conversation<br/>MCP Available]
+    end
+
+    subgraph "Agent Execution"
+        AgentSpec[Agent Spec<br/>.claude/agents/<br/>SPAR Workflow]
+        SkillLoad[Load Skills<br/>crm-data-model]
+    end
+
+    subgraph "MCP Integration"
+        Search[mcp__notion__<br/>notion-search]
+        Fetch[mcp__notion__<br/>notion-fetch]
+        Update[mcp__notion__<br/>notion-update-page]
+    end
+
+    subgraph "Notion Workspace"
+        SearchDB[(Search<br/>Oportunidades)]
+        FetchOpp[(Fetch<br/>Opportunity Page)]
+        FetchNotes[(Fetch<br/>Anotações)]
+        WriteOpp[(Update<br/>6 Fields)]
+    end
+
+    subgraph "Governance"
+        UserApproval{User<br/>Approval}
+        MemLog[Memory Log<br/>JSONL]
+    end
+
+    SC --> CMD
+    NL --> Main
+    CMD --> Main
+    Main --> AgentSpec
+
+    AgentSpec --> SkillLoad
+    AgentSpec --> Search
+    Search --> SearchDB
+    SearchDB --> UserApproval
+
+    UserApproval -->|Valid| Fetch
+    UserApproval -->|Invalid| Main
+
+    Fetch --> FetchOpp
+    Fetch --> FetchNotes
+
+    FetchOpp --> AgentSpec
+    FetchNotes --> AgentSpec
+
+    AgentSpec --> UserApproval
+    UserApproval -->|Approve| Update
+    UserApproval -->|Reject| Main
+
+    Update --> WriteOpp
+    WriteOpp --> MemLog
+    MemLog --> Main
+
+    style SC fill:#4CAF50
+    style UserApproval fill:#FF9800
+    style MemLog fill:#9C27B0
+    style SearchDB fill:#000,color:#fff
+    style FetchOpp fill:#000,color:#fff
+    style FetchNotes fill:#000,color:#fff
+    style WriteOpp fill:#000,color:#fff
+```
+
+**Diagram:** Complete data flow from user invocation to Notion update.
+
+**Flow:**
+1. **Entry:** Slash command (deterministic) or natural language (best-effort)
+2. **Invocation:** Command delegates to agent spec in main context
+3. **Execution:** Agent loads skills, searches Notion via MCP
+4. **Validation:** User validates search result
+5. **Fetching:** Load opportunity + meeting notes
+6. **Processing:** Agent analyzes and generates recommendations
+7. **Approval:** User approves/rejects proposed updates
+8. **Update:** Write to Notion if approved
+9. **Logging:** Record execution to memory JSONL
+
+**Governance Points:** 2 user approval gates (search validation + update approval)
